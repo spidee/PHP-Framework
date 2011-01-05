@@ -1,0 +1,23 @@
+CREATE TABLE `pages` (
+  `id` int(255) NOT NULL AUTO_INCREMENT,
+  `parent` int(255) DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `htmlTitle` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `htmlMetaDescription` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `htmlMetaKeywords` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `htmlContent` text COLLATE utf8_czech_ci,
+  `seoLink` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `internalPointer` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `phpInclude` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `phpExe` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `tplInclude` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
+  `menuOrder` int(10) DEFAULT '0',
+  `mainMenu` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'no',
+  `seo` int(1) DEFAULT '1',
+  `enabled` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'no',
+  `deleted` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'no',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `internalPointer` (`internalPointer`),
+  UNIQUE KEY `link` (`seoLink`),
+  KEY `enabled` (`enabled`,`deleted`)
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci

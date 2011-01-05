@@ -1,0 +1,65 @@
+* {margin: 0px; padding: 0px; border: 0px; position: relative;}
+
+#compileTime
+{
+    background-color: white;
+    text-align: center;
+    font-size: 11px;
+}
+
+#exceptionPage
+{
+    background-color: #FFFFFF;   
+    color: #000000;
+    font-family: Verdana,Arial,sans-serif;
+    font-size: 11px;
+}
+
+
+.exceptionTitle
+{
+    font-size: 22px;
+    font-weight: bold;
+    padding-bottom: 15px;
+    color: #666666;
+}
+
+.exceptionError
+{
+    font-size: 22px;
+    font-weight: bold;
+    padding-bottom: 15px;
+    color: #950022;
+    padding: 20px;
+    padding-top: 35px;
+    padding-left: 40px;
+}
+
+.exceptionErrorMainDiv
+{
+    background-color: #F9F9F9;    
+    padding: 20px;
+    border: 1px dashed silver;
+    margin: 20px;
+}
+
+#exceptionGetCode
+{
+  
+}
+#exceptionGetFile
+{
+    
+}
+#exceptionGetLine
+{
+   
+}
+#exceptionGetMessage
+{
+  
+}
+#exceptionGetTraceAsString
+{
+    
+}
