@@ -29,22 +29,20 @@ else if (!$page->isActive())
 else
     header(HTTP_HEADER_200_OK);
     
-
-/*    
-if ($page->exe)
-{
-    if (file_exists(FOLDER_EXE_FILES.$page->exe))
-    {
-        include (FOLDER_EXE_FILES.$page->exe);
-        exit;
-    }
-    else if (DEBUG)
-        reportDebugError("Stranka {$page->id}-{$page->title} ma neexistujiti EXE {$page->exe}");
-}
-*/
     
 try
 {
+    if ($page->phpExe)
+    {
+        if (file_exists(FOLDER_EXE_FILES.$page->phpExe))
+        {
+            include (FOLDER_EXE_FILES.$page->phpExe);
+            exit;
+        }
+        else if (DEBUG)
+            throw new Exception("Stranka {$page->id}-{$page->title} ma neexistujici EXE '{$page->phpExe}'");
+    }
+
     if ($page->phpInclude && file_exists(FOLDER_PHP_FILES.$page->phpInclude))
         include_once (FOLDER_PHP_FILES.$page->phpInclude);
         

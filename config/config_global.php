@@ -53,7 +53,7 @@ define ("SEO", true);
 define ("DEBUG", $_debug);
 define ("LOCALHOST", $_localhost);
 define ("DEFAULT_PAGE_ID", 1);
-define ("ERROR_PAGE_ID", 404);
+define ("ERROR_PAGE_ID", 2);
 define ("FORBIDDEN_PAGE_ID", 404);
 define ("FOLDER_PHP_FILES", "php/");
 define ("FOLDER_EXE_FILES", "exe/");

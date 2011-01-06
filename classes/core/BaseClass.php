@@ -14,9 +14,9 @@ class BaseClass
   public static $dbDefaultAdapter;
   private $dbAdapter;
 
-  function __construct($in = NULL)
+  function __construct($in = NULL, DataBase $dbAdapter = NULL)
   {
-    $this->dbAdapter = self::$dbDefaultAdapter;
+    $this->dbAdapter = $dbAdapter ? $dbAdapter : self::$dbDefaultAdapter;
     
     //TODO: HACK!! - doufejme, ze PHP zavede vlastnosti objektu v interface
     if (!isset($this->tableName) || empty($this->tableName))

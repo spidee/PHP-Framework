@@ -18,11 +18,11 @@ require_once("Smarty/Smarty.class.php");
 
 // CORE
 require_once("Core/Session.php");
-require_once("Core/DB/DataBase.php");
+require_once("Core/DB/DBInterface.php"); 
 require_once("Core/DB/QueryBuilder.php");
 require_once("Core/DB/Row.php");
 require_once("Core/DB/RowSet.php");
-require_once("Core/DBInterface.php"); 
+require_once("Core/DataBase.php");
 require_once("Core/BaseClass.php");
 require_once("Core/QueryString.php ");
 require_once("Core/Seo.php");

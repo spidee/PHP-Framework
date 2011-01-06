@@ -80,7 +80,7 @@ class DataBase
         $res = mysql_query($query, $this->conn);
 
         if (mysql_errno($this->conn))
-            throw new Exception("Chyba SQL: " . mysql_error($this->conn) . "<br/>" . PHP_EOL . $query);
+            throw new Exception("SQL: " . mysql_error($this->conn) . "<br/>" . PHP_EOL . $query . "Error");
         
         return $res;
     }
