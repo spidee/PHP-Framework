@@ -24,12 +24,13 @@ class DBRow implements ArrayAccess
     
     function __set($name, $value)
     {
-        $this->data[$name] = $value;
+        throw new CustomException("DB Row je pouze pro cteni!");
+        //$this->data[$name] = $value;
     }
 
     public function offsetSet($offset, $data) 
     {
-        throw new Exception("DB Row je pouze pro cteni!");
+        throw new CustomException("DB Row je pouze pro cteni!");
         /*
         if ($offset === null) 
             $this->data[] = $data;
@@ -49,13 +50,13 @@ class DBRow implements ArrayAccess
     }
     
     public function offsetExists($offset) 
-    { 
+    {
         return isset($this->data[$offset]); 
     }
     
     public function offsetUnset($offset) 
     { 
-        throw new Exception("DB Row je pouze pro cteni!");
+        throw new CustomException("DB Row je pouze pro cteni!");
     }
     
     public function isEmpty()

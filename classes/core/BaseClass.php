@@ -20,7 +20,7 @@ class BaseClass
     
     //TODO: HACK!! - doufejme, ze PHP zavede vlastnosti objektu v interface
     if (!isset($this->tableName) || empty($this->tableName))
-        throw new Exception("Trida '" . get_class($this) . "' nema nastavenou vlastnost 'tableName'");
+        throw new CustomException("Trida '" . get_class($this) . "' nema nastavenou vlastnost 'tableName'");
 
     if (is_array($in))
     {

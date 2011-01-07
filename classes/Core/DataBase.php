@@ -15,9 +15,10 @@ class DataBase
     
     private $fetch_mode;
     */
-    private $conn;
+    private $connection;
     private $dbType;
     private $dbSettings = array();
+    private $lastQuery;
     
     function __construct($dbType, array $dbSettings)
     {
@@ -37,57 +38,65 @@ class DataBase
                     $this->fetch_mode = $mode;
                 break;
             default:
-                throw new Exception("Neplatny fetch mode v setFetchMode()");
+                throw new CustomException("Neplatny fetch mode v setFetchMode()");
         }
     }
     */
     private function connect()
     {
         if (!array_key_exists("host", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'host'");
+            throw new CustomException("V nastaveni DB chybi polozka 'host'");
         if (!array_key_exists("username", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'username'");
+            throw new CustomException("V nastaveni DB chybi polozka 'username'");
         if (!array_key_exists("password", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'password'");
+            throw new CustomException("V nastaveni DB chybi polozka 'password'");
         
         if (!$this->isConnected())
-            $this->conn = mysql_connect($this->dbSettings["host"], $this->dbSettings["username"], $this->dbSettings["password"]);
+            $this->connection = mysql_connect($this->dbSettings["host"], $this->dbSettings["username"], $this->dbSettings["password"]);
             
         if (!$this->isConnected())
-            throw new Exception("Nelze se pripojit do DB!");
+            throw new CustomException("Nelze se pripojit do DB!");
     }
     
     private function selectDatabase()
     {
         if (!array_key_exists("dbname", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'dbname'");
+            throw new CustomException("V nastaveni DB chybi polozka 'dbname'");
         
-        mysql_select_db($this->dbSettings["dbname"], $this->conn);
+        mysql_select_db($this->dbSettings["dbname"], $this->connection);
     }
     
-    public function fetchAll($query)
+    public function fetchAll(QueryBuilder $query)
     {
         return new DBRowSet($this->_query($query));
     }
     
-    public function query($query)
+    public function query(QueryBuilder $query)
     {   
         return new DBRow($this->_query($query));
     }
     
-    private function _query($query)
+    public function queryRawSql($query)
+    {   
+        $query = new QueryBuilder($query);
+        return new DBRow($this->_query($query));
+    }
+    
+    private function _query(QueryBuilder $query)
     {
-        $res = mysql_query($query, $this->conn);
+        $res = mysql_query($query, $this->connection);
 
-        if (mysql_errno($this->conn))
-            throw new Exception("SQL: " . mysql_error($this->conn) . "<br/>" . PHP_EOL . $query . "Error");
+        if (mysql_errno($this->connection))
+            throw new CustomException("SQL: " . mysql_error($this->connection) . "<br/>" . PHP_EOL . $query);
+            
+        $this->lastQuery = $query;
         
         return $res;
     }
     
     public function isConnected()
     {
-        return $this->conn && is_resource($this->conn);
+        return $this->connection && is_resource($this->connection);
     }
     
     public function select(array $columns = array("*"))

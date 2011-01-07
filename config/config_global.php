@@ -96,7 +96,8 @@ $EXT404EXCEPTION = array(
     "jpeg",
     "gif",
     "png",
-    "flv"
+    "flv",
+    "xml"
 )
 
 ?>

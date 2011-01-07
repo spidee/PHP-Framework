@@ -26,30 +26,31 @@ abstract class DBInterface
     public function connect()
     {
         if (!array_key_exists("host", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'host'");
+            throw new CustomException("V nastaveni DB chybi polozka 'host'");
         if (!array_key_exists("username", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'username'");
+            throw new CustomException("V nastaveni DB chybi polozka 'username'");
         if (!array_key_exists("password", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'password'");
+            throw new CustomException("V nastaveni DB chybi polozka 'password'");
         
         if (!$this->isConnected())
             $this->connection = $this->_connectToDB($this->dbSettings["host"], $this->dbSettings["username"], $this->dbSettings["password"]);
             
         if (!$this->isConnected())
-            throw new Exception("Nelze se pripojit do DB!");
+            throw new CustomException("Nelze se pripojit do DB!");
     }
     
     abstract protected function  _connectToDB($host, $username, $password);
     abstract protected function  _selectDatabase($db, $connection);
     abstract public function isConnected();
+    abstract protected function _query($query);
     
     private function selectDatabase()
     {
         if (!array_key_exists("dbname", $this->dbSettings))
-            throw new Exception("V nastaveni DB chybi polozka 'dbname'");
+            throw new CustomException("V nastaveni DB chybi polozka 'dbname'");
             
         if (!$this->isConnected())
-            throw new Exception("Nelze vybrat databazi, pokud neni pripojeni");
+            throw new CustomException("Nelze vybrat databazi, pokud neni pripojeni");
         
         $this->_selectDatabase($this->dbSettings["dbname"], $this->connection);
     }
@@ -68,8 +69,8 @@ abstract class DBInterface
     {
         $res = mysql_query($query, $this->connection);
 
-        if (mysql_errno($this->conn))
-            throw new Exception("SQL: " . mysql_error($this->conn) . "<br/>" . PHP_EOL . $query . "Error");
+        if (mysql_errno($this->connection))
+            throw new CustomException("SQL: " . mysql_error($this->connection) . "<br/>" . PHP_EOL . $query . "Error");
         
         return $res;
     }

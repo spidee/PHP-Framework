@@ -94,46 +94,15 @@ function compareTimeForFacebookSort($x, $y)
         return 0;
 }
 
-function generateUrl($host, array $params)
+// HELPER FUNCTION
+function handleError($errno, $errstr, $errfile, $errline, $errcontext)
 {
-    $url_orig = parse_url($host);
-    
-    $url = isset($url_orig["scheme"]) ? $url_orig["scheme"] : "http";                
-    $url .= "://";          
-    $url .= $url_orig["host"].$url_orig["path"];
-    
-    $query = false;
-    if (isset($url_orig["query"]))
-    {
-        $url .= "?" . $url_orig["query"];
-        $query = true;
-    }
-        
-    if (count($params))
-    {
-        $url .= $query ? "&" : "?";
-        $i = 0;
-        foreach ($params as $key=>$value)
-        {
-            $url .= $key."=".$value;
-            ++$i;
-            
-            if ($i < count($params))
-                $url .= "&";
-        }
-    }
-    
-    return $url;
+    CustomException::handleError($errno, $errstr, $errfile, $errline, $errcontext);
 }
 
-function handleExceptions(Exception $ex)
+// HELPER FUNCTION
+function handleExceptions(CustomException $ex)
 {
-    global $SMARTY;   
-    
-    header(HTTP_HEADER_500_INTERNAL_SERVER_ERROR);
-    
-    $SMARTY->assign("Exception", $ex);
-    $SMARTY->display("exceptions.tpl");
-    die();
-}
+    CustomException::handleExceptions($ex);
+} 
 ?>

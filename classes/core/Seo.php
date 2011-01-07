@@ -29,7 +29,7 @@ class Seo {
       
       if ($page && $page->id && $page->link)
       {
-          if ($this->enable_seo && $page->seo)
+          if ($this->enable_seo && $page->seo == DB_ENUM_TRUE)
           {
             $ret .= $page->link;
           
@@ -61,7 +61,7 @@ class Seo {
       
       if (count($pieces) == 2)
           return $pieces[0] . SEO_PARSE_PAGING . $page . URL_SUFFIX;  
-      
+                
       $url = str_replace(URL_SUFFIX, "", $url);
       $url .= SEO_PARSE_PAGING . $page . URL_SUFFIX;
       return $url;    

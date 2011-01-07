@@ -15,13 +15,15 @@ class QueryBuilder
     private $where;
     private $order;
     private $limit;
+    private $rawSqlQuery;
     
     const SELECT = 1;
     const INSERT = 2;
+    const DELETE = 3;
     
-    function __constuct()
-    {
-        
+    function __construct($rawSqlQuery = null)
+    {        
+        $this->rawSqlQuery = $rawSqlQuery;        
     }
     
     function select(array $columns = array("*"))
@@ -57,24 +59,36 @@ class QueryBuilder
     
     function limit($count, $offset)
     {        
-        if ($count && $offset)
-            $this->limit = array($count, $offset);
-            
+        if (is_numeric($count) && is_numeric($offset))
+            $this->limit = array($count, $offset);           
+        
         return $this;
     }
     
     function getSqlQuery()
     {
+        // maybe validte SQL query first?
+        if ($this->rawSqlQuery)
+            return $this->rawSqlQuery;
+        
+        $from = true;
+        
         switch ($this->mode)
         {
             case QueryBuilder::SELECT:
-                $sql = "SELECT " . implode(",", $this->columns) . " FROM " . $this->from;
+                $sql = "SELECT " . implode(",", $this->columns);
                 break;
             case QueryBuilder::INSERT:
                 $sql = "INSERT";
+                $from = false;
+                break;
+            case QueryBuilder::DELETE:
+                $sql = "DELETE";
                 break;
         }
         
+        if ($from && $this->from)
+            $sql .= " FROM {$this->from}";
         if ($this->where)
             $sql .= " WHERE {$this->where}";
         if ($this->order)

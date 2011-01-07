@@ -13,7 +13,7 @@ CREATE TABLE `pages` (
   `tplInclude` varchar(255) COLLATE utf8_czech_ci DEFAULT NULL,
   `menuOrder` int(10) DEFAULT '0',
   `mainMenu` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'no',
-  `seo` int(1) DEFAULT '1',
+  `seo` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'yes',
   `enabled` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'no',
   `deleted` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'no',
   PRIMARY KEY (`id`),
