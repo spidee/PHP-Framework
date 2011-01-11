@@ -32,6 +32,23 @@ class Page extends BaseClass {
       return $page->search($where, "menuOrder ASC");
   }
   
+  public static function getPagesInfo()
+  {
+      $pages = new Page();
+      
+      $where = array();
+      array_push($where, "deleted = '" . DB_ENUM_FALSE . "'");
+      array_push($where, "enabled = '" . DB_ENUM_TRUE . "'");
+      
+      $pages = $pages->search($where);
+        
+      $return = array();
+      foreach ($pages as $page)
+          $return[$page->internalPointer] = $page;
+
+      return $return;
+  }
+  
 }
 
 ?>

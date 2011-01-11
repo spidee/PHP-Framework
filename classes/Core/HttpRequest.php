@@ -61,7 +61,7 @@ class HttpRequest
           $this->GETdata[$name] = $value; 
           
       if ($this->selector == HttpRequest::$POST)
-          $this->POSTdata[$name] = $value;      
+          $this->POSTdata[$name] = $value;
     }
 
     private function fillDataFromGET()

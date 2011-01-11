@@ -52,9 +52,10 @@ define ("HTTP_HEADER_500_INTERNAL_SERVER_ERROR", "HTTP/1.1 500 Internal Server E
 define ("SEO", true);
 define ("DEBUG", $_debug);
 define ("LOCALHOST", $_localhost);
+define ("DEFAULT_TIMEZONE", "Europe/Prague");
 define ("DEFAULT_PAGE_ID", 1);
 define ("ERROR_PAGE_ID", 2);
-define ("FORBIDDEN_PAGE_ID", 404);
+define ("FORBIDDEN_PAGE_ID", ERROR_PAGE_ID);
 define ("FOLDER_PHP_FILES", "php/");
 define ("FOLDER_EXE_FILES", "exe/");
 define ("FOLDER_LIBS", "libs");

@@ -69,11 +69,14 @@ function clearToken()
     $session->unsetAll();    
 }
 
-function dump($var)
+function dump($var, $withDie = false)
 {
     echo "<pre>";
     var_dump($var);
     echo "</pre>";
+    
+    if ($withDie)
+        die();
 }
 
 function getCzechDateFormat($sql_timestamp)

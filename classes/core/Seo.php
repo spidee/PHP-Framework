@@ -27,11 +27,11 @@ class Seo {
        
       $page = new Page("internalPointer = '{$module}'");
       
-      if ($page && $page->id && $page->link)
+      if ($page && $page->id && $page->seoLink)
       {
           if ($this->enable_seo && $page->seo == DB_ENUM_TRUE)
           {
-            $ret .= $page->link;
+            $ret .= $page->seoLink;
           
             if ($subpage)
                 $ret .= "/".$this->prepareForUrl($subpage);
@@ -43,7 +43,7 @@ class Seo {
           }
           else
           {
-            $ret .= "index.php?action={$page->link}";
+            $ret .= "index.php?action={$page->seoLink}";
             if ($subpage)
                 $ret .= "&id={$subpage}";
             if ($page_num)

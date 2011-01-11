@@ -2,6 +2,8 @@
     
 require_once("config/config_global.php");
 
+date_default_timezone_set(DEFAULT_TIMEZONE);
+
 $ROOT = realpath(dirname(__FILE__));
 set_include_path(get_include_path().
                  PATH_SEPARATOR.$ROOT."\\".FOLDER_LIBS.

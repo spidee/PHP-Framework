@@ -11,10 +11,11 @@ class Session implements ArrayAccess {
 
     private $sessionData = array();
     private $nameSpace;
+    private $useSerialization = false;
 
-    function __construct($name)
+    function __construct($name, $useSerialization = false)
     {
-      //parent::__construct($name);
+      $this->useSerialization = $useSerialization;
       $this->initSession($name);
     }
 
@@ -33,7 +34,9 @@ class Session implements ArrayAccess {
 
     private function initSession($nameSpace)
     {
-      @session_start();
+      if (!session_id())
+        session_start();
+      
       
       $this->nameSpace = $nameSpace;
       
@@ -57,18 +60,18 @@ class Session implements ArrayAccess {
     {    
         if ($offset === null) 
             $this->sessionData[$this->nameSpace][] = $data;
-        else 
-            $this->sessionData[$this->nameSpace][$offset] = $data;
-    }
-
-    public function toArray() 
-    {
-        return $this->sessionData;
+        else         
+            $this->sessionData[$this->nameSpace][$offset] = $this->useSerialization ? serialize($data) : $data;
     }
         
     public function offsetGet($offset)
-    { 
-        return $this->sessionData[$this->nameSpace] && isset($this->sessionData[$this->nameSpace][$offset]) ? $this->sessionData[$this->nameSpace][$offset] : null; 
+    {         
+        if (!isset($this->sessionData[$this->nameSpace]) || !isset($this->sessionData[$this->nameSpace][$offset]))
+            return null;
+        
+        $return = $this->sessionData[$this->nameSpace][$offset];    
+        
+        return $this->useSerialization ? unserialize($return) : $return;
     }
     
     public function offsetExists($offset) 
@@ -79,6 +82,11 @@ class Session implements ArrayAccess {
     public function offsetUnset($offset) 
     { 
         unset($this->sessionData[$this->nameSpace][$offset]);
+    }
+    
+    public function unsetAll()
+    {
+        unset($this->sessionData[$this->nameSpace]);
     }
     
     public function isEmpty()

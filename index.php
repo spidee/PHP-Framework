@@ -32,18 +32,19 @@ if ($page->phpExe)
         exit;
     }
     else if (DEBUG)
-        throw new Exception("Stranka {$page->id}-{$page->title} ma neexistujici EXE '{$page->phpExe}'");
+        throw new CustomException("Stranka {$page->id}-{$page->title} ma neexistujici EXE '{$page->phpExe}'", E_ERROR);
 }
 
 if ($page->phpInclude && file_exists(FOLDER_PHP_FILES.$page->phpInclude))
     include_once (FOLDER_PHP_FILES.$page->phpInclude);
     
 $main_menu = Page::getMainMenu();
+$pages = Page::getPagesInfo();
 
   
 $SMARTY->assign("main_menu", $main_menu);
-$SMARTY->assign("main_menu", $main_menu);
 $SMARTY->assign("PAGE", $page);
+$SMARTY->assign("PAGES", $pages);
 
 $time2 = microtime();
 $SMARTY->assign("compileTime", round(($time2 - $time1), 2));

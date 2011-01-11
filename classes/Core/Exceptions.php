@@ -11,7 +11,7 @@ class CustomException extends Exception
 {
     private $context;
 
-    public function __construct($message, $code, $file, $line, $context = null)
+    public function __construct($message, $code, $file = __FILE__, $line = 0, $context = null)
     {
         parent::__construct($message, $code);
         
@@ -29,8 +29,11 @@ class CustomException extends Exception
     public static function handleExceptions(CustomException $ex)
     {
         global $SMARTY;   
-        
+
         header(HTTP_HEADER_500_INTERNAL_SERVER_ERROR);
+        
+        if (!$SMARTY || !is_object($SMARTY))
+            die($ex->getMessage(). "<br>" . $ex->getLine(). "<br>" . $ex->getFile(). "<br>" . $ex->getTraceAsString());
         
         $SMARTY->assign("Exception", $ex);
         $SMARTY->display("exceptions.tpl");

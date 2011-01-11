@@ -5,7 +5,7 @@
 *   Last update: 14.9.2009
 */
 
-class BaseClass 
+class BaseClass implements ArrayAccess
 {
 
   private $data;
@@ -83,13 +83,43 @@ class BaseClass
   
   function __get($name)
   {
-      return $this->data && isset($this->data[$name]) ? $this->data[$name] : null; 
+      return $this->offsetGet($name);
   }
     
   function __set($name, $value)
   {
-      $this->data[$name] = $value;
+      return $this->offsetSet($name, $value);
   }
+  
+  public function offsetSet($name, $data) 
+    {
+        $this->data[$name] = $data;
+    }
+
+    public function toArray() 
+    {
+        return $this->data;
+    }
+        
+    public function offsetGet($name)
+    { 
+        return $this->data && isset($this->data[$name]) ? $this->data[$name] : null; 
+    }
+    
+    public function offsetExists($name) 
+    {
+        return isset($this->data[$name]); 
+    }
+    
+    public function offsetUnset($offset) 
+    { 
+        unset($this->data[$offset]);
+    }
+    
+    public function isEmpty()
+    {
+        return !is_array($this->data) || !count($this->data); 
+    }
   
   function save($overideId = false)
   {
