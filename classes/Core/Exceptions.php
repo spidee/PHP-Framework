@@ -28,10 +28,13 @@ class CustomException extends Exception
 
     public static function handleExceptions(CustomException $ex)
     {
-        global $SMARTY;   
-
-        header(HTTP_HEADER_500_INTERNAL_SERVER_ERROR);
+        if (!error_reporting())
+            return;
         
+        global $SMARTY;   
+        
+        header(HTTP_HEADER_500_INTERNAL_SERVER_ERROR);
+
         if (!$SMARTY || !is_object($SMARTY))
             die($ex->getMessage(). "<br>" . $ex->getLine(). "<br>" . $ex->getFile(). "<br>" . $ex->getTraceAsString());
         

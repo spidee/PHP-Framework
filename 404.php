@@ -29,6 +29,8 @@ if (in_array(end(explode(".", $url)), $EXT404EXCEPTION))
 for ($i = (count($url_parse) - 1); $i >= 0; --$i)
 {
     $action = str_replace(URL_SUFFIX, "", $url_parse[$i]);
+    
+    $idFound = false;
 
     $matches_query = array();
     if (preg_match("/\?.+/", $action, $matches_query))
@@ -66,15 +68,14 @@ for ($i = (count($url_parse) - 1); $i >= 0; --$i)
             if ($__id = intval($matches[0]))
             {
                 $id = $__id;
+                $idFound = true;
                 $action = preg_replace("/^{$__id}/","",$action);         
             }
-        }
-        else
-            $id = $action; 
+        } 
     }
     
-    if ($i == 0) 
-      $__action = trim($action);   
+    if (!$idFound) 
+      $__action = trim($action).($__action ? "/" : "" ).$__action;   
  
 }
 
@@ -92,6 +93,7 @@ if (isset($id))
 
 //print_r($_GET);
 //die();
+
 
 require_once("index.php");
 

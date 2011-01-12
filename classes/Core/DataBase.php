@@ -105,6 +105,19 @@ class DataBase
         return $qb->select($columns);
     }
     
+    public function insert(array $columnsValues = array())
+    {
+        throw new CustomException("not implemented yet", E_ERROR);
+        
+        $qb = new QueryBuilder();
+        return $qb->select($columns);
+        
+        $qb->from($obj->getTableName());
+        $qb->where($obj->getIdColumn() . "=" .$id);
+        
+        return new DBRowSet($this->_query($qb));
+    }
+    
     public function find($id, BaseClass $obj)
     {
         $qb = $this->select();

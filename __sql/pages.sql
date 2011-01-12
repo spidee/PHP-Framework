@@ -18,7 +18,6 @@ CREATE TABLE `pages` (
   `deleted` enum('no','yes') COLLATE utf8_czech_ci DEFAULT 'no',
   PRIMARY KEY (`id`),
   UNIQUE KEY `internalPointer` (`internalPointer`),
-  UNIQUE KEY `link` (`seoLink`),
   KEY `enabled` (`enabled`,`deleted`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci
 

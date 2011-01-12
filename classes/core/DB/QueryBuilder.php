@@ -19,7 +19,8 @@ class QueryBuilder
     
     const SELECT = 1;
     const INSERT = 2;
-    const DELETE = 3;
+    const UPDATE = 3;
+    const DELETE = 4;
     
     function __construct($rawSqlQuery = null)
     {        
@@ -33,10 +34,17 @@ class QueryBuilder
         return $this;
     }
     
-    function insert()
+    function insert(array $columnsValues = array())
     {
+        $this->columns = $columnsValues; 
         $this->mode = QueryBuilder::INSERT;
         return $this;
+    }
+    
+    function update($table)
+    {
+        $this->mode = QueryBuilder::UPDATE;
+        return $this;        
     }
     
     function from($from)
@@ -81,6 +89,9 @@ class QueryBuilder
             case QueryBuilder::INSERT:
                 $sql = "INSERT";
                 $from = false;
+                break;
+            case QueryBuilder::DELETE:
+                $sql = "UPDATE";
                 break;
             case QueryBuilder::DELETE:
                 $sql = "DELETE";

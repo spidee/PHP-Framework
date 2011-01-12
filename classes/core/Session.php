@@ -48,7 +48,7 @@ class Session implements ArrayAccess {
 
     function __get($name)
     {
-        return $this->offsetGet($name);
+        return $this->offsetGet($name);        
     }
 
     function __set($name, $value)
@@ -61,12 +61,14 @@ class Session implements ArrayAccess {
         if ($offset === null) 
             $this->sessionData[$this->nameSpace][] = $data;
         else         
-            $this->sessionData[$this->nameSpace][$offset] = $this->useSerialization ? serialize($data) : $data;
+            $this->sessionData[$this->nameSpace][$offset] = 
+            $this->useSerialization ? serialize($data) : $data;
     }
         
     public function offsetGet($offset)
     {         
-        if (!isset($this->sessionData[$this->nameSpace]) || !isset($this->sessionData[$this->nameSpace][$offset]))
+        if (!isset($this->sessionData[$this->nameSpace]) || 
+            !isset($this->sessionData[$this->nameSpace][$offset]))
             return null;
         
         $return = $this->sessionData[$this->nameSpace][$offset];    
@@ -91,7 +93,8 @@ class Session implements ArrayAccess {
     
     public function isEmpty()
     {
-        return !is_array($this->sessionData[$this->nameSpace]) || !count($this->sessionData[$this->nameSpace]); 
+        return !is_array($this->sessionData[$this->nameSpace]) || 
+               !count($this->sessionData[$this->nameSpace]); 
     }
 }
 

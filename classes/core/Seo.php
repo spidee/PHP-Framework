@@ -9,30 +9,46 @@
 
 class Seo {
     
-  private $enable_seo;
-    
-  function __construct($enable_seo = true)
-  {
-      $this->enable_seo = $enable_seo;
-  }
-  
-  public function prepareForUrl($name)
-  {
-      return Seo::strip_chars($name);
-  }
-  
-  public function getUrl($module, $subpage = null, $page_num = null)
-  {     
+    private $enableSeo;
+
+    function __construct($enableSeo = true)
+    {
+      $this->enableSeo = $enableSeo;
+    }
+
+    public function prepareForUrl($name)
+    {
+      return Seo::stripChars($name);
+    }
+
+    public function getRecursivelyParentPagesLink(BaseClass $page)
+    {
+        $subpage = new Page($page->parent);
+        
+        $return = "";
+        
+        if ($subpage->parent)
+            $return = $this->getRecursivelyParentPagesLink($subpage);
+        
+        if ($subpage && $subpage->isValid() && $subpage->seoLink)
+            $return .= $subpage->seoLink . "/"; 
+        
+        return  $return;   
+    }  
+
+    public function getUrl($module, $subpage = null, $page_num = null)
+    {     
       $ret = URL;
        
       $page = new Page("internalPointer = '{$module}'");
       
-      if ($page && $page->id && $page->seoLink)
+      if ($page && $page->isValid() && $page->seoLink)
       {
-          if ($this->enable_seo && $page->seo == DB_ENUM_TRUE)
-          {
-            $ret .= $page->seoLink;
-          
+          if ($this->enableSeo && $page->seo == DB_ENUM_TRUE)
+          {                                
+            $ret .= $this->getRecursivelyParentPagesLink($page);                
+            $ret .= $page->seoLink;    
+                        
             if ($subpage)
                 $ret .= "/".$this->prepareForUrl($subpage);
                
@@ -52,10 +68,10 @@ class Seo {
       }
       
       return $ret; 
-  }
-  
-  public function getUrlWithChangedPage($page)
-  {
+    }
+
+    public function getUrlWithChangedPage($page)
+    {
       $url = $_SERVER["REQUEST_URI"];
       $pieces = explode(SEO_PARSE_PAGING, $url);
       
@@ -65,10 +81,10 @@ class Seo {
       $url = str_replace(URL_SUFFIX, "", $url);
       $url .= SEO_PARSE_PAGING . $page . URL_SUFFIX;
       return $url;    
-  }
-  
-  static function strip_chars($string)
-  {      
+    }
+
+    static function stripChars($string)
+    {      
       $string = trim($string);
       
       $specCharsToConvert = array(" ", "&", "+", ".");
@@ -91,15 +107,15 @@ class Seo {
         "<" => "", ">" => "", ";" => "", "°" => "", "~" => "", "´" => "", "^" => "", "%" => "", "?" => "",
         "*" => ""
     );
-    
+
     $string = mb_ereg_replace('\-+','-',$string);
     $string = strtr($string, $trans);
-    
+
     foreach ($specCharsToConvert as $str)
         $string = strtr($string, $str, "-");
-    
+
     return $string; 
-  }
+    }
 }
 
 ?>

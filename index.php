@@ -4,11 +4,12 @@ $time1 = microtime();
 
 require_once('global.inc.php');
 
-$action = isset($_GET["action"]) ? $_GET["action"] : null;     
-$page_in = $action ? "seoLink = '{$SEO->prepareForUrl($action)}'" : DEFAULT_PAGE_ID; 
+$hr = new HttpRequest();
 
+$action =  $hr->action ? $hr->action : null;     
 
-$page = new Page($page_in);
+$page = new Page();
+$page = $action ? $page->getPageByLinkWithSubpages($action) : new Page(DEFAULT_PAGE_ID);
 
 if (!$page || !$page->isValid())
 {
@@ -38,9 +39,9 @@ if ($page->phpExe)
 if ($page->phpInclude && file_exists(FOLDER_PHP_FILES.$page->phpInclude))
     include_once (FOLDER_PHP_FILES.$page->phpInclude);
     
+    
 $main_menu = Page::getMainMenu();
 $pages = Page::getPagesInfo();
-
   
 $SMARTY->assign("main_menu", $main_menu);
 $SMARTY->assign("PAGE", $page);

@@ -49,5 +49,4 @@ require_once("db.php");
 require_once("classes/Page.php");
 require_once("classes/User.php");
 
-
 ?>

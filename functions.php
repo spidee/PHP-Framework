@@ -28,7 +28,7 @@ function getFlashMessage()
 
 function reportDebugError($mess)
 {
-    throw new Exception($mess);
+    throw new CustomException($mess);
 }
 
 function reloadPage($url)
