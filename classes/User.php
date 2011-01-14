@@ -1,13 +1,14 @@
 <?php
 
-class User extends BaseClass {
-    
+class User extends BaseClass 
+{
+
     protected $tableName = TBL_USERS;
-    
+
     function __construct($in = NULL)
     {
-        parent::__construct($in);    
-    }    
+        parent::__construct($in);
+    }
    
 }
 

@@ -49,10 +49,10 @@ class HttpRequest
         if ($selector != HttpRequest::$POST)
             if (isset($this->GETdata[$name]))
                 $value = $this->GETdata[$name]; 
-          
+
         if ($selector != HttpRequest::$GET)
             if (isset($this->POSTdata[$name]))
-                $value = $this->POSTdata[$name];  
+                $value = $this->POSTdata[$name];
 
         return $value;
     }
@@ -70,12 +70,12 @@ class HttpRequest
 
     private function fillDataFromGET()
     {
-        $this->GETdata = $_GET;      
+        $this->GETdata = $_GET;
     }
 
     private function fillDataFromPOST()
     {
-        $this->POSTdata = $_POST;      
+        $this->POSTdata = $_POST;
     }
 
     public function setSelector($selector)
@@ -85,15 +85,15 @@ class HttpRequest
 
         $this->selector = $selector;
     }
-  
+
     public static function generateUrl($host, array $params)
     {
         $url_orig = parse_url($host);
         
-        $url = isset($url_orig["scheme"]) ? $url_orig["scheme"] : "http";                
+        $url = isset($url_orig["scheme"]) ? $url_orig["scheme"] : "http";
         $url .= "://";          
         $url .= $url_orig["host"].$url_orig["path"];
-        
+
         $query = false;
         if (isset($url_orig["query"]))
         {
@@ -114,10 +114,10 @@ class HttpRequest
                     $url .= "&";
             }
         }
-        
+
         return $url;
     }
-  
+
 }
 
 ?>

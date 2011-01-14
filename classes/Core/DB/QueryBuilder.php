@@ -15,7 +15,14 @@ class QueryBuilder
     private $where;
     private $order;
     private $limit;
+    private $table;
     private $rawSqlQuery;
+    private $insertSQL;
+    private $updateSQL;
+    private $selectSQL;
+    private $deleteSQL;
+    private $describeSQL;
+    private $queryString;
     
     const SELECT = 1;
     const INSERT = 2;
@@ -24,33 +31,68 @@ class QueryBuilder
     
     function __construct($rawSqlQuery = null)
     {        
-        $this->rawSqlQuery = $rawSqlQuery;        
+        $this->rawSqlQuery = $rawSqlQuery;
+        
+        $this->insertSQL = "[INSERT INTO {table}] [SET {updateColumns}]";
+        $this->updateSQL = "[UPDATE {table}] [SET {updateColumns}] [WHERE {where}] [LIMIT {limit}]";
+        $this->selectSQL = "[SELECT {columns}] [FROM {from}] [LEFT JOIN {leftJoinTable}] [WHERE {where}] [GROUP BY {groupBy}] [ORDER BY {order}] [LIMIT {limit}]";
+        $this->describeSQL = "[DESCRIBE {table}]";
+        $this->deleteSQL = null;
+        
     }
     
     function select(array $columns = array("*"))
     {
-        $this->columns = $columns; 
+        $this->columns = $columns;
         $this->mode = QueryBuilder::SELECT;
+        $this->queryString = $this->selectSQL;
         return $this;
     }
     
-    function insert(array $columnsValues = array())
+    function insert(array $columnsValues, $table = null)
     {
-        $this->columns = $columnsValues; 
+        $this->updateColumns = $columnsValues; 
+        
+        if ($table)
+            $this->table = $table;
+        
         $this->mode = QueryBuilder::INSERT;
+        $this->queryString = $this->insertSQL;
         return $this;
     }
     
-    function update($table)
+    function update(array $columnsValues, $table = null)
     {
+        $this->updateColumns = $columnsValues; 
+        
+        if ($table)
+            $this->table = $table;
+            
         $this->mode = QueryBuilder::UPDATE;
-        return $this;        
+        $this->queryString = $this->updateSQL;
+        return $this;
+    }
+    
+    function describeTable($table = null)
+    {
+        if ($table)
+            $this->table = $table;
+            
+        $this->queryString = $this->describeSQL;
+        return $this;
     }
     
     function from($from)
     {
         $this->from = $from;
-        return $this;        
+        $this->table = $from;
+        return $this;
+    }
+    
+    function table($table)
+    {
+        $this->table = $table;
+        return $this;
     }
     
     function where($where)
@@ -66,48 +108,94 @@ class QueryBuilder
     }
     
     function limit($count, $offset)
-    {        
+    {
         if (is_numeric($count) && is_numeric($offset))
-            $this->limit = array($count, $offset);           
+            $this->limit = array($count, $offset);
         
         return $this;
+    }
+    
+    private function formattedValues($name, $value)
+    {
+        switch ($name)
+        {
+            case "columns":
+            case "limit":
+                if (is_array($value) && count($value))
+                    $value = implode(", ", $value); 
+                break;
+                
+            case "updateColumns":
+                $ret = array();
+                if (is_array($value) && count($value))
+                    foreach ($value as $key=>$update)
+                        array_push($ret, "{$key} = " . self::prepareValues($update)); 
+                        
+                if (count($ret))
+                    $value = implode(", ", $ret);
+                break;
+                                                
+        }
+        
+        return $value;
+    }
+    
+    public static function prepareValues($value)
+    {
+        $value = addslashes($value);
+                                    
+        if (is_string($value))
+            $value = "'$value'";
+        
+        return $value;
+    }
+    
+    private function prepareStatement($query)
+    {
+        $matches = array();
+
+        if (preg_match_all("/\[.*?\]/", $query, $matches))
+        {
+            foreach ($matches[0] as $part)
+            {
+                $includeThisPart = false;
+                $return = $part;
+                $replaceMatches = array();
+                
+                if (preg_match_all("/\{[a-zA-Z0-9_]*?\}/", $part, $replaceMatches))
+                {
+                    foreach ($replaceMatches[0] as $replace)
+                    {                        
+                        $replace = str_replace("}", "", $replace); 
+                        $replace = str_replace("{", "", $replace);
+                        $includeThisPart = false;                    
+                        
+                        if (isset($this->{$replace}))
+                        {
+                            $dataItem = $this->formattedValues($replace, $this->{$replace});
+                            $return = preg_replace("/\{{$replace}\}/", $dataItem, $return);
+                            $includeThisPart = true;
+                        }
+                    }                    
+                    $return = str_replace("[", "", $return); 
+                    $return = str_replace("]", "", $return);                    
+                }                
+                $toReplace = $includeThisPart ? $return : "";
+                $query = str_replace($part, $toReplace, $query);
+            }
+        }
+         
+        $query = mb_ereg_replace('[ ]+',' ',trim($query));
+        return $this->queryString = $query;
     }
     
     function getSqlQuery()
     {
         // maybe validte SQL query first?
         if ($this->rawSqlQuery)
-            return $this->rawSqlQuery;
-        
-        $from = true;
-        
-        switch ($this->mode)
-        {
-            case QueryBuilder::SELECT:
-                $sql = "SELECT " . implode(",", $this->columns);
-                break;
-            case QueryBuilder::INSERT:
-                $sql = "INSERT";
-                $from = false;
-                break;
-            case QueryBuilder::DELETE:
-                $sql = "UPDATE";
-                break;
-            case QueryBuilder::DELETE:
-                $sql = "DELETE";
-                break;
-        }
-        
-        if ($from && $this->from)
-            $sql .= " FROM {$this->from}";
-        if ($this->where)
-            $sql .= " WHERE {$this->where}";
-        if ($this->order)
-            $sql .= " ORDER BY {$this->order}";
-        if ($this->limit && is_array($this->limit))
-            $sql .= " LIMIT {$this->limit[0]}, {$this->limit[1]}";
-        
-        return $sql;
+            return $this->rawSqlQuery;     
+                 
+        return $this->prepareStatement($this->queryString);
     }
     
     function __toString()

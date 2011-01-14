@@ -23,23 +23,23 @@ class Session implements ArrayAccess {
     {
       foreach ($array as $key=>$value)
         $this->$key = $value;
-        
+
       return $this;
     }
     
     public function toArray() 
     {
         return $this->sessionData[$this->nameSpace];
-    } 
+    }
 
     private function initSession($nameSpace)
     {
       if (!session_id())
         session_start();
-      
-      
+
+
       $this->nameSpace = $nameSpace;
-      
+
       if (!isset($_SESSION[$this->nameSpace]))
           $_SESSION[$this->nameSpace] = array();
       
@@ -48,53 +48,53 @@ class Session implements ArrayAccess {
 
     function __get($name)
     {
-        return $this->offsetGet($name);        
+        return $this->offsetGet($name);
     }
 
     function __set($name, $value)
     {
-        $this->offsetSet($name, $value);        
+        $this->offsetSet($name, $value);
     }
     
-    public function offsetSet($offset, $data) 
+    public function offsetSet($offset, $data)
     {    
-        if ($offset === null) 
+        if ($offset === null)
             $this->sessionData[$this->nameSpace][] = $data;
-        else         
-            $this->sessionData[$this->nameSpace][$offset] = 
+        else
+            $this->sessionData[$this->nameSpace][$offset] =
             $this->useSerialization ? serialize($data) : $data;
     }
-        
+
     public function offsetGet($offset)
-    {         
+    {
         if (!isset($this->sessionData[$this->nameSpace]) || 
             !isset($this->sessionData[$this->nameSpace][$offset]))
             return null;
-        
-        $return = $this->sessionData[$this->nameSpace][$offset];    
-        
+
+        $return = $this->sessionData[$this->nameSpace][$offset];
+
         return $this->useSerialization ? unserialize($return) : $return;
     }
-    
+
     public function offsetExists($offset) 
     {
-        return isset($this->sessionData[$this->nameSpace][$offset]); 
+        return isset($this->sessionData[$this->nameSpace][$offset]);
     }
-    
+
     public function offsetUnset($offset) 
-    { 
+    {
         unset($this->sessionData[$this->nameSpace][$offset]);
     }
-    
+
     public function unsetAll()
     {
         unset($this->sessionData[$this->nameSpace]);
     }
-    
+
     public function isEmpty()
     {
-        return !is_array($this->sessionData[$this->nameSpace]) || 
-               !count($this->sessionData[$this->nameSpace]); 
+        return !is_array($this->sessionData[$this->nameSpace]) ||
+               !count($this->sessionData[$this->nameSpace]);
     }
 }
 

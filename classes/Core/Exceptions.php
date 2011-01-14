@@ -92,7 +92,7 @@ class CustomException extends Exception
                 $code = "E_WARNING";
                 break;
         }        
-        return $code; 
+        return $code;
     }
 }
 

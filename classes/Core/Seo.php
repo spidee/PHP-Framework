@@ -8,7 +8,7 @@
 */
 
 class Seo {
-    
+
     private $enableSeo;
 
     function __construct($enableSeo = true)
@@ -37,7 +37,7 @@ class Seo {
     }  
 
     public function getUrl($module, $subpage = null, $page_num = null)
-    {     
+    {
       $ret = URL;
        
       $page = new Page("internalPointer = '{$module}'");
@@ -45,16 +45,16 @@ class Seo {
       if ($page && $page->isValid() && $page->seoLink)
       {
           if ($this->enableSeo && $page->seo == DB_ENUM_TRUE)
-          {                                
-            $ret .= $this->getRecursivelyParentPagesLink($page);                
-            $ret .= $page->seoLink;    
-                        
+          {
+            $ret .= $this->getRecursivelyParentPagesLink($page);
+            $ret .= $page->seoLink;
+
             if ($subpage)
                 $ret .= "/".$this->prepareForUrl($subpage);
-               
+
             if ($page_num)
                 $ret .= SEO_PARSE_PAGING.$page_num;
-               
+
             $ret .= URL_SUFFIX;
           }
           else
@@ -76,19 +76,19 @@ class Seo {
       $pieces = explode(SEO_PARSE_PAGING, $url);
       
       if (count($pieces) == 2)
-          return $pieces[0] . SEO_PARSE_PAGING . $page . URL_SUFFIX;  
+          return $pieces[0] . SEO_PARSE_PAGING . $page . URL_SUFFIX;
                 
       $url = str_replace(URL_SUFFIX, "", $url);
       $url .= SEO_PARSE_PAGING . $page . URL_SUFFIX;
-      return $url;    
+      return $url;
     }
 
     static function stripChars($string)
-    {      
+    {
       $string = trim($string);
-      
+
       $specCharsToConvert = array(" ", "&", "+", ".");
-      
+
       $trans = array(
         "Á" => "A", "á" => "a", "Č" => "C", "č" => "c", "Ď" => "D", "ď" => "d", "É" => "E", "é" => "e",
         "Ě" => "E", "ě" => "e", "Í" => "I", "í" => "i", "Ľ" => "l", "ľ" => "l", "Ň" => "N", "ň" => "n", "Ó" => "O", "ó" => "o",

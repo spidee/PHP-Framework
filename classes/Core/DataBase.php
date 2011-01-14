@@ -49,7 +49,7 @@ class DataBase
         if (!array_key_exists("username", $this->dbSettings))
             throw new CustomException("V nastaveni DB chybi polozka 'username'");
         if (!array_key_exists("password", $this->dbSettings))
-            throw new CustomException("V nastaveni DB chybi polozka 'password'");
+            throw new CustomException("V nastaveni DB chybi polozka 'password'");        
         
         if (!$this->isConnected())
             $this->connection = mysql_connect($this->dbSettings["host"], $this->dbSettings["username"], $this->dbSettings["password"]);
@@ -87,7 +87,7 @@ class DataBase
         $res = mysql_query($query, $this->connection);
 
         if (mysql_errno($this->connection))
-            throw new CustomException("SQL: " . mysql_error($this->connection) . "<br/>" . PHP_EOL . $query);
+            throw new CustomException("SQL: " . mysql_error($this->connection) . "<br/>" . PHP_EOL . $query, E_ERROR);
             
         $this->lastQuery = $query;
         
@@ -105,17 +105,48 @@ class DataBase
         return $qb->select($columns);
     }
     
-    public function insert(array $columnsValues = array())
-    {
-        throw new CustomException("not implemented yet", E_ERROR);
-        
+    public function insert(array $columnsValues, BaseClass $obj)
+    {        
         $qb = new QueryBuilder();
-        return $qb->select($columns);
+        $qb->table($obj->getTableName());
         
-        $qb->from($obj->getTableName());
-        $qb->where($obj->getIdColumn() . "=" .$id);
+        $this->excludeNotExistedColumns($qb, $columnsValues);
+        
+        $qb->insert($columnsValues);
         
         return new DBRowSet($this->_query($qb));
+    }
+    
+    public function update(array $columnsValues, BaseClass $obj, $where = null)
+    {      
+        $qb = new QueryBuilder();
+        $qb->table($obj->getTableName());
+        
+        $this->excludeNotExistedColumns($qb, $columnsValues);
+                
+        $qb->update($columnsValues);
+        $qb->where($where);
+
+        return new DBRowSet($this->_query($qb));
+    }
+    
+    private function excludeNotExistedColumns(QueryBuilder $qb, array &$columnsValues)
+    {
+        $d = $qb->describeTable();
+        $d = new DBRowSet($this->_query($d));
+        
+        foreach ($columnsValues as $column=>$value)
+        {
+            $unsetThis = true;
+            foreach ($d as $columnDB)
+            {
+                if ($columnDB->Field == $column && !ereg("auto_increment", $columnDB->Extra))
+                    $unsetThis = false;
+            }
+            
+            if ($unsetThis)
+                unset($columnsValues[$column]);
+        }
     }
     
     public function find($id, BaseClass $obj)
@@ -125,6 +156,11 @@ class DataBase
         $qb->where($obj->getIdColumn() . "=" .$id);
         
         return new DBRowSet($this->_query($qb));
+    }
+    
+    public function lastInsertId()
+    {
+        return mysql_insert_id($this->connection);
     }
     
 }

@@ -12,7 +12,7 @@ class DBRowSet implements Iterator, Countable
     private $items = array();
     private $position = 0;
     
-    function __construct($data) 
+    function __construct($data)
     {
         while ($data && ($item = new DBRow($data)) && !$item->isEmpty())
             array_push($this->items, $item);
