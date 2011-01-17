@@ -4,9 +4,7 @@ $time1 = microtime();
 
 require_once('global.inc.php');
 
-$hr = new HttpRequest();
-
-$action =  $hr->action ? $hr->action : null;     
+$action =  $HTTP_REQUEST->action ? $HTTP_REQUEST->action : null;     
 
 $page = new Page();
 $page = $action ? $page->getPageByLinkWithSubpages($action) : new Page(DEFAULT_PAGE_ID);
@@ -37,18 +35,20 @@ if ($page->phpExe)
 }
 
 if ($page->phpInclude && file_exists(FOLDER_PHP_FILES.$page->phpInclude))
-    include_once (FOLDER_PHP_FILES.$page->phpInclude);
+    include (FOLDER_PHP_FILES.$page->phpInclude);
     
     
 $main_menu = Page::getMainMenu();
 $pages = Page::getPagesInfo();
-  
+ 
 $SMARTY->assign("main_menu", $main_menu);
 $SMARTY->assign("PAGE", $page);
 $SMARTY->assign("PAGES", $pages);
 
 $time2 = microtime();
+$AllSQLQueries = BaseClass::getDefaultAdapter()->allQueries; 
 $SMARTY->assign("compileTime", round(($time2 - $time1), 2));
+$SMARTY->assign("AllSQLQueries", $AllSQLQueries);
 $SMARTY->display("main.tpl");
 
 

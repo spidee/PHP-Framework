@@ -33,11 +33,11 @@ class QueryBuilder
     {        
         $this->rawSqlQuery = $rawSqlQuery;
         
-        $this->insertSQL = "[INSERT INTO {table}] [SET {updateColumns}]";
-        $this->updateSQL = "[UPDATE {table}] [SET {updateColumns}] [WHERE {where}] [LIMIT {limit}]";
-        $this->selectSQL = "[SELECT {columns}] [FROM {from}] [LEFT JOIN {leftJoinTable}] [WHERE {where}] [GROUP BY {groupBy}] [ORDER BY {order}] [LIMIT {limit}]";
-        $this->describeSQL = "[DESCRIBE {table}]";
-        $this->deleteSQL = null;
+        $this->insertSQL    = "[INSERT INTO {table}] [SET {updateColumns}]";
+        $this->updateSQL    = "[UPDATE {table}] [SET {updateColumns}] [WHERE {where}] [LIMIT {limit}]";
+        $this->selectSQL    = "[SELECT {columns}] [FROM {from}] [LEFT JOIN {leftJoinTable} ON {leftJoin}] [WHERE {where}] [GROUP BY {groupBy}] [ORDER BY {order}] [LIMIT {limit}]";
+        $this->describeSQL  = "[DESCRIBE {table}]";
+        $this->deleteSQL    = "[DELETE FROM {talbe}] [WHERE {where}] [LIMIT {limit}]";
         
     }
     
@@ -77,6 +77,15 @@ class QueryBuilder
     {
         if ($table)
             $this->table = $table;
+            
+        $this->queryString = $this->describeSQL;
+        return $this;
+    }
+    
+    function describeQuery($query = null)
+    {
+        if ($query)
+            $this->table = $query;
             
         $this->queryString = $this->describeSQL;
         return $this;
@@ -122,14 +131,14 @@ class QueryBuilder
             case "columns":
             case "limit":
                 if (is_array($value) && count($value))
-                    $value = implode(", ", $value); 
+                    $value = implode(", ", $value);
                 break;
                 
             case "updateColumns":
                 $ret = array();
                 if (is_array($value) && count($value))
                     foreach ($value as $key=>$update)
-                        array_push($ret, "{$key} = " . self::prepareValues($update)); 
+                        array_push($ret, "{$key} = " . self::prepareValues($update));
                         
                 if (count($ret))
                     $value = implode(", ", $ret);
@@ -166,9 +175,9 @@ class QueryBuilder
                 {
                     foreach ($replaceMatches[0] as $replace)
                     {                        
-                        $replace = str_replace("}", "", $replace); 
+                        $replace = str_replace("}", "", $replace);
                         $replace = str_replace("{", "", $replace);
-                        $includeThisPart = false;                    
+                        $includeThisPart = false;
                         
                         if (isset($this->{$replace}))
                         {

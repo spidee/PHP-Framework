@@ -20,6 +20,8 @@ $AUTOLOADER = Zend_Loader_Autoloader::getInstance();
 
 require_once("Smarty/Smarty.class.php");
 
+require_once("Geshi/geshi.php");
+
 // CORE
 require_once("Core/Exceptions.php");
 require_once("Core/Session.php");
@@ -30,6 +32,7 @@ require_once("Core/DB/RowSet.php");
 require_once("Core/DataBase.php");
 require_once("Core/BaseClass.php");
 require_once("Core/HttpRequest.php");
+require_once("Core/LanguageHighlighter.php");
 require_once("Core/Seo.php");
 
 // OLD FACEBOOK API
@@ -41,6 +44,7 @@ require_once("Core/Seo.php");
 require_once("Facebook/SDK/src/facebook.php");
 
 // MUST BE IN THIS ORDER;
+require_once("LanguageHighlighter.php");
 require_once("seo.php");
 require_once("smarty.php");
 require_once("db.php");
@@ -48,5 +52,7 @@ require_once("db.php");
 // OTHER
 require_once("classes/Page.php");
 require_once("classes/User.php");
+require_once("classes/Galerie.php");
+
 
 ?>

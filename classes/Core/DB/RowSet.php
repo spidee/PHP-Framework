@@ -7,7 +7,7 @@
 *   TODO: 
 */
 
-class DBRowSet implements Iterator, Countable
+class DBRowSet implements Iterator, Countable, ArrayAccess
 {
     private $items = array();
     private $position = 0;
@@ -42,6 +42,11 @@ class DBRowSet implements Iterator, Countable
     {
         --$this->position;
     }
+    
+    function last()
+    {
+        return end($this->items);
+    }
 
     function valid()
     {
@@ -51,6 +56,39 @@ class DBRowSet implements Iterator, Countable
     public function count()
     {
         return count($this->items);
+    }
+    
+    public function offsetSet($offset, $data)
+    {
+        if ($offset === null) 
+            $this->items[] = $data;
+        else 
+            $this->items[$offset] = $data;
+    }
+
+    public function toArray() 
+    {
+        return $this->items;
+    }
+        
+    public function offsetGet($offset)
+    { 
+        return $this->items[$offset];
+    }
+    
+    public function offsetExists($offset) 
+    {
+        return isset($this->items[$offset]); 
+    }
+    
+    public function offsetUnset($offset) 
+    { 
+        unset($this->items[$offset]);
+    }
+    
+    public function isEmpty()
+    {
+        return !count($this->items);
     }
 }
 

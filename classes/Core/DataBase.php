@@ -19,11 +19,15 @@ class DataBase
     private $dbType;
     private $dbSettings = array();
     private $lastQuery;
+    private $debug = false;
+    
+    public $allQueries = array();
     
     function __construct($dbType, array $dbSettings)
     {
         $this->dbType = $dbType;
         $this->dbSettings = $dbSettings;
+        $this->debug = DEBUG;
         
         $this->connect();
         $this->selectDatabase();
@@ -71,29 +75,78 @@ class DataBase
         return new DBRowSet($this->_query($query));
     }
     
+    public function fetchSingle(QueryBuilder $query)
+    {
+        return new DBRow($this->_query($query));
+    }
+    
     public function query(QueryBuilder $query)
-    {   
+    {
         return new DBRow($this->_query($query));
     }
     
     public function queryRawSql($query)
     {   
         $query = new QueryBuilder($query);
-        return new DBRow($this->_query($query));
+        return new DBRowSet($this->_query($query));
     }
     
     private function _query(QueryBuilder $query)
     {
         $res = mysql_query($query, $this->connection);
-
+        
         if (mysql_errno($this->connection))
             throw new CustomException("SQL: " . mysql_error($this->connection) . "<br/>" . PHP_EOL . $query, E_ERROR);
             
         $this->lastQuery = $query;
+        $this->getDebugInfo();
         
         return $res;
     }
     
+    public function getDebugInfo()
+    {
+        if (!$this->debug || !$this->lastQuery)
+            return;
+            
+        $lastQuery = $this->lastQuery;
+        
+        $this->debug = false;
+
+        $dbg = null;
+        $describeRes = null;
+        $duration = null;
+
+        try
+        {
+            $__dbg = $this->queryRawSql("SET PROFILING = 1");
+            $_dbg = $this->queryRawSql("SELECT QUERY_ID, SUM(DURATION) AS SUM_DURATION FROM INFORMATION_SCHEMA.PROFILING GROUP BY QUERY_ID");
+            
+            $describe = new QueryBuilder();
+            $describe->describeQuery($lastQuery);
+            $describeRes = $this->fetchSingle($describe);
+            
+            if ($_dbg->count())
+            {
+                $duration = $_dbg->last()->SUM_DURATION;
+                $dbg = $this->queryRawSql("SELECT STATE AS `Status`, ROUND(SUM(DURATION),7) AS `Duration`, CONCAT(ROUND(SUM(DURATION)/0.000175*100,3), '%') AS `Percentage` FROM INFORMATION_SCHEMA.PROFILING WHERE QUERY_ID=".$_dbg->last()->QUERY_ID." GROUP BY STATE");
+            }
+        }
+        catch(CustomException $ex)
+        {            
+        }
+            
+        $this->debug = DEBUG;
+
+        $lastQuery->debugInfo = new stdClass();
+        $lastQuery->debugInfo->profiling = $dbg;
+        $lastQuery->debugInfo->describe = $describeRes;
+        $lastQuery->debugInfo->duration = $duration;
+                
+        array_push($this->allQueries, $lastQuery);
+        
+    }
+        
     public function isConnected()
     {
         return $this->connection && is_resource($this->connection);

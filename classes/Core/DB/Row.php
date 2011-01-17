@@ -7,9 +7,10 @@
 *   TODO: 
 */
 
-class DBRow implements ArrayAccess
+class DBRow implements ArrayAccess, Iterator
 {
     private $data = array();
+    private $position = 0;
     
     public function __construct($data) 
     {
@@ -62,6 +63,31 @@ class DBRow implements ArrayAccess
     public function isEmpty()
     {
         return !is_array($this->data) || !count($this->data); 
+    }
+    
+    function rewind() 
+    {
+        return reset($this->data);
+    }
+    
+    function current() 
+    {
+        return current($this->data);
+    }
+    
+    function key() 
+    {
+        return key($this->data);
+    }
+    
+    function next() 
+    {
+        return next($this->data);
+    }
+    
+    function valid() 
+    {
+        return key($this->data) !== null;
     }
 }
 

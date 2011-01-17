@@ -6,5 +6,7 @@ $SMARTY->template_dir = "{$ROOT}/templates";
 
 $SMARTY->assign("flash_message", getFlashMessage());
 $SMARTY->assign("SEO", $SEO);
+$SMARTY->assign("HTTP_REQUEST", $HTTP_REQUEST);
+$SMARTY->assign("LANGUAGE_HIGHLIGHTER", $LANGUAGE_HIGHLIGHTER);
 
 ?>

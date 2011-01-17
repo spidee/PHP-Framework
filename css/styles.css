@@ -1,10 +1,11 @@
 * {margin: 0px; padding: 0px; border: 0px; position: relative;}
 
-#compileTime
+.Clearer
 {
-    background-color: white;
-    text-align: center;
-    font-size: 11px;
+    width: 0px;
+    height: 0px;
+    font-size: 0px;
+    clear: both;
 }
 
 #exceptionPage
@@ -62,4 +63,51 @@
 #exceptionGetTraceAsString
 {
     
+}
+
+#CompileTime
+{
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    font-family: monospace;
+    margin: 20px;
+}
+
+#SQLDebugInfo
+{
+    font-family: monospace;
+}
+#SQLDebugInfo table
+{
+    border: 1px dotted #6C6C6C;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#SQLDebugInfo table td, #SQLDebugInfo table th
+{
+    border: 1px dotted #6C6C6C;
+    padding: 5px;
+}
+#SQLDebugInfo #Query
+{
+    margin-bottom: 10px;
+}
+
+#SQLDebugInfo #QueryInfo
+{
+    border: 1px dashed black;
+    padding: 10px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+#SQLDebugInfo #QueryTime span
+{
+    text-decoration: underline;
+    cursor: pointer;
+}
+#QueryTimeBubble td, #QueryTimeBubble th
+{
+    padding: 5px;
 }

@@ -25,19 +25,22 @@
     <meta name="resource-type" content="document" />
 
     {if $PAGE->htmlTitle neq ''} 
-        <title>{$PAGE->htmlTitle}</title>
+        <title>{$PAGE->htmlTitle} | {$smarty.const.SERVER_TITLE}</title>
     {else}
-        <title>{$smarty.const.SERVER_TITLE}</title>
+        <title>{$PAGE->title} | {$smarty.const.SERVER_TITLE}</title>
     {/if}
 
     <meta name="copyright" content="" /> 
     <meta name="author" content="" />
 
     <!-- STYLES -->
-    <link rel="stylesheet" type="text/css" media="screen,projection" href="css/styles.css" />
+    <link rel="stylesheet" type="text/css" media="screen,projection" href="/css/styles.css" />
 
     <!-- SCRIPTS -->
-    <script type="text/javascript" src="js/scripts.js"></script>
+    <script type="text/javascript" src="/js/jquery-1.4.4.min.js"></script>
+    <link href="/css/jquery.bubblepopup.v2.3.1.css" rel="stylesheet" type="text/css" />
+    <script src="/js/jquery.bubblepopup.v2.3.1.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/scripts.js"></script>
 
     {if $flash_message}
         <script type="text/javascript" language="JavaScript">
@@ -50,20 +53,23 @@
 </head>
 <body>
 
-<div class="MainContent">
+<div id="MainContent">
 
-    {assign var="page" value=$PAGE->tplInclude}     
-    {if $page}
-        {include file="body/$page"} 
-    {else}
-        {$PAGE->htmlContent}
-    {/if}
-    
-    {include file="footer/footer.tpl"}     
+    <div id="InnerContent">
+
+        {assign var="page" value=$PAGE->tplInclude}     
+        {if $page}
+            {include file="body/$page"} 
+        {else}
+            {$PAGE->htmlContent}
+        {/if}
+
+    </div>
 
 </div>
 
-
+{include file="footer/footer.tpl"}
+    
 </body>
 </html>        
 
