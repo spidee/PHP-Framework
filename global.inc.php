@@ -32,6 +32,9 @@ require_once("Core/DB/RowSet.php");
 require_once("Core/DataBase.php");
 require_once("Core/BaseClass.php");
 require_once("Core/HttpRequest.php");
+
+$HTTP_REQUEST = new HttpRequest();
+
 require_once("Core/LanguageHighlighter.php");
 require_once("Core/Seo.php");
 
@@ -41,7 +44,7 @@ require_once("Core/Seo.php");
 //require_once("FaceBook.php");
 
 // NEW FACEBOOK API
-require_once("Facebook/SDK/src/facebook.php");
+//require_once("Facebook/SDK/src/facebook.php");
 
 // MUST BE IN THIS ORDER;
 require_once("LanguageHighlighter.php");
@@ -52,7 +55,5 @@ require_once("db.php");
 // OTHER
 require_once("classes/Page.php");
 require_once("classes/User.php");
-require_once("classes/Galerie.php");
-
 
 ?>
