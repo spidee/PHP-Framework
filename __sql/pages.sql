@@ -19,7 +19,7 @@ CREATE TABLE `pages` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `internalPointer` (`internalPointer`),
   KEY `enabled` (`enabled`,`deleted`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_czech_ci;
 
 INSERT INTO `pages` (`id`, `title`, `htmlTitle`, `htmlMetaDescription`, `htmlMetaKeywords`, `htmlContent`, `seoLink`, `internalPointer`, `phpInclude`, `phpExe`, `tplInclude`, `menuOrder`, `mainMenu`, `seo`, `enabled`, `deleted`) VALUES (1, NULL, NULL, NULL, NULL, NULL, 'index', 'index', NULL, NULL, 'homepage.tpl', 0, 'yes', 1, 'yes', 'no');
 INSERT INTO `pages` (`id`, `title`, `htmlTitle`, `htmlMetaDescription`, `htmlMetaKeywords`, `htmlContent`, `seoLink`, `internalPointer`, `phpInclude`, `phpExe`, `tplInclude`, `menuOrder`, `mainMenu`, `seo`, `enabled`, `deleted`) VALUES (2, NULL, NULL, NULL, NULL, NULL, '404', '404', NULL, NULL, '404.tpl', 0, 'no', 1, 'yes', 'no');
