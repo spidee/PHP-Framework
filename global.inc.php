@@ -11,12 +11,10 @@ set_include_path(get_include_path().
 
 define ("ROOT", $ROOT);
 
+require_once("Core/Exceptions.php");
 require_once("functions.php");
 set_exception_handler("handleExceptions");
 set_error_handler("handleError");
-
-require_once("Zend/Loader/Autoloader.php");
-$AUTOLOADER = Zend_Loader_Autoloader::getInstance();
 
 require_once("Smarty/Smarty.class.php");
 

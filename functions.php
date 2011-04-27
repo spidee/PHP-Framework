@@ -1,6 +1,6 @@
 <?php
 
-function getSession($name = null) 
+function getSession($name = null)
 {
     return new Session($name ? $name : SESSION_DEFAULT);
 }
@@ -16,7 +16,7 @@ function setFlashMessage($message)
     $f_message = getSession(SESSION_FLASH_MESSAGE);
     $f_message->message = $message;
 }
-                
+
 function getFlashMessage() 
 {
     $f_message = getSession(SESSION_FLASH_MESSAGE);
@@ -33,7 +33,7 @@ function reportDebugError($mess)
 
 function reloadPage($url)
 {
-    header("Location: {$url}");    
+    header("Location: {$url}");
     exit;
 }
 
@@ -66,7 +66,7 @@ function getAuthClient()
 function clearToken()
 {
     $session = getSession("sessionToken");
-    $session->unsetAll();    
+    $session->unsetAll();
 }
 
 function dump($var, $withDie = false)
@@ -88,13 +88,18 @@ function compareTimeForFacebookSort($x, $y)
 {
     $x = (int)$x["time"];
     $y = (int)$y["time"];
-    
+
     if ($x == $y)
         return 0;
     else if ($x < $y)
         return 1;
     else
         return 0;
+}
+
+function getPropertyValueFromArrayOfObjects(array $array, $property)
+{
+    
 }
 
 // HELPER FUNCTION
@@ -104,8 +109,11 @@ function handleError($errno, $errstr, $errfile, $errline, $errcontext)
 }
 
 // HELPER FUNCTION
-function handleExceptions(CustomException $ex)
+function handleExceptions(Exception $ex)
 {
+    if (!($ex instanceOf CustomException))
+        $ex = new CustomException($ex->getMessage(), $ex->getCode(), $ex->getFile(), $ex->getLine());
+    
     CustomException::handleExceptions($ex);
 } 
 ?>

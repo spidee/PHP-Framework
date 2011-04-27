@@ -4,6 +4,7 @@ class Page extends BaseClass {
 
     protected $tableName = TBL_PAGES;
     public $id_column = "id";
+    public static $pagesInfo;
 
     public function isActive()
     {
@@ -34,6 +35,9 @@ class Page extends BaseClass {
 
     public static function getPagesInfo()
     {
+      if (Page::$pagesInfo)
+        return Page::$pagesInfo;
+        
       $pages = new Page();
 
       $where = array();
@@ -46,9 +50,85 @@ class Page extends BaseClass {
       foreach ($pages as $page)
           $return[$page->internalPointer] = $page;
 
+      Page::$pagesInfo = $return;
+      
       return $return;
     }
+    
+    public function getParentPages(array &$output)
+    {
+        $return = array();
+        $parent = $this->getParentPage();
 
+        if ($parent && $parent->isValid())
+        {
+            array_push($output, $parent);
+            $parent->getParentPages($output);
+        }
+    }
+    
+    public function getParentPage()
+    {
+        $pages = Page::getPagesInfo();
+        
+        foreach ($pages as $page)
+            if ($page->getId() == $this->parent)
+                return $page;
+                
+        return null; 
+    }
+    
+    public function getChildPages(array &$output)
+    {
+        throw new Exception("Page::getChildPages() has not been implemented yet!", E_ERROR);
+    }
+    
+    public function getChildPage()
+    {
+        $pages = Page::getPagesInfo();
+        $return = null;
+        
+        foreach ($pages as $page)
+        {
+            if ($page->isActive() && $page->parent == $this->getId())
+            {
+                if (!$return)
+                    $return = $page;
+                    
+                else if ($page->menuOrder < $return->menuOrder)
+                    $return = $page;
+                    
+                else if ($page->menuOrder = $return->menuOrder && $return->getId() < $page->getId())
+                    $return = $page;
+            }
+        }
+        return $return; 
+    }
+    
+    public function isActivePage($internalPointer, $mayBeParent = true)
+    {
+        $pages = $this->getPagesInfo();
+        
+        if ($pages && is_array($pages) && count($pages) && isset($pages[$internalPointer]))
+        {
+            $page = $pages[$internalPointer];
+            if ($page->isValid() && $this->getId() == $page->getId())
+                return true;
+            
+            if ($mayBeParent)
+            {
+                $output = array();
+                $this->getParentPages($output);
+                
+                foreach ($output as $pag)                
+                    if ($pag->isValid() && $page->getId() == $pag->getId())
+                        return true;
+            }
+        }
+        
+        return false;
+    }
+        
     public function getPageByLinkWithSubpages($action)
     {
         global $SEO;
@@ -86,10 +166,12 @@ class Page extends BaseClass {
                         }
                     }
                 }
-
+                
                 return null;
             }
+            return null;            
         }
+        return null;
     }
 }
 
