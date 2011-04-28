@@ -6,8 +6,8 @@ date_default_timezone_set(DEFAULT_TIMEZONE);
 
 $ROOT = realpath(dirname(__FILE__));
 set_include_path(get_include_path().
-                 PATH_SEPARATOR.$ROOT."\\".FOLDER_LIBS.
-                 PATH_SEPARATOR.$ROOT."\\".FOLDER_CLASSES);
+                 PATH_SEPARATOR.$ROOT.DIRECTORY_SEPARATOR.FOLDER_LIBS.
+                 PATH_SEPARATOR.$ROOT.DIRECTORY_SEPARATOR.FOLDER_CLASSES);
 
 define ("ROOT", $ROOT);
 
@@ -30,6 +30,7 @@ require_once("Core/DB/RowSet.php");
 require_once("Core/DataBase.php");
 require_once("Core/BaseClass.php");
 require_once("Core/HttpRequest.php");
+require_once("Core/Validator.php");
 
 $HTTP_REQUEST = new HttpRequest();
 
@@ -45,7 +46,7 @@ require_once("Core/Seo.php");
 //require_once("Facebook/SDK/src/facebook.php");
 
 // MUST BE IN THIS ORDER;
-require_once("LanguageHighlighter.php");
+require_once("languageHighlighter.php");
 require_once("seo.php");
 require_once("smarty.php");
 require_once("db.php");

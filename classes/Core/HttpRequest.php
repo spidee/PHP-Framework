@@ -11,13 +11,15 @@ class HttpRequest
 {
     private $GETdata = array();
     private $POSTdata = array();
+    private $SERVERdata = array();
 
     private $selector;
 
-    public static $GET  = 1;
-    public static $POST = 2;
+    const GET  = 1;
+    const POST = 2;
+    const SERVER = 3;
 
-    function __construct(array $GETdata = null, array $POSTdata = null)
+    function __construct(array $GETdata = null, array $POSTdata = null, array $SERVERdata = null)
     {
         if ($GETdata && count($GETdata))
           $this->GETdata = $GETdata;
@@ -28,6 +30,11 @@ class HttpRequest
           $this->POSTdata = $POSTdata;
         else 
           $this->fillDataFromPOST();
+          
+        if ($SERVERdata && count($SERVERdata))
+          $this->SERVERdata = $SERVERdata;
+        else 
+          $this->fillDataFromSERVER();
     }
 
     function __get($name)
@@ -46,13 +53,17 @@ class HttpRequest
 
         $selector  = $selector ? $selector : $this->selector;
 
-        if ($selector != HttpRequest::$POST)
+        if (!$selector || $selector == self::GET)
             if (isset($this->GETdata[$name]))
                 $value = $this->GETdata[$name]; 
 
-        if ($selector != HttpRequest::$GET)
+        if (!$selector || $selector == self::POST)
             if (isset($this->POSTdata[$name]))
                 $value = $this->POSTdata[$name];
+                
+        if (!$selector || $selector == self::SERVER)
+            if (isset($this->SERVERdata[$name]))
+                $value = $this->SERVERdata[$name];
 
         return $value;
     }
@@ -61,11 +72,14 @@ class HttpRequest
     {
         $selector  = $selector ? $selector : $this->selector;
         
-        if ($selector != HttpRequest::$POST)
+        if (!$selector || $selector == self::GET)
             $this->GETdata[$name] = $value; 
           
-        if ($selector == HttpRequest::$POST)
+        if ($selector == self::POST)
             $this->POSTdata[$name] = $value;
+            
+        if ($selector == self::SERVER)
+            $this->SERVERdata[$name] = $value;
     }
 
     private function fillDataFromGET()
@@ -77,10 +91,30 @@ class HttpRequest
     {
         $this->POSTdata = $_POST;
     }
+    
+    private function fillDataFromSERVER()
+    {
+        $this->SERVERdata = $_SERVER;
+    }
+    
+    public function getGETdata()
+    {
+        return $this->GETdata;
+    }
+
+    public function getPOSTdata()
+    {
+        return $this->POSTdata;
+    }
+    
+    public function getSEREVERdata()
+    {
+        return $this->SERVERdata;
+    }
 
     public function setSelector($selector)
     {
-        if ($selector != HttpRequest::$GET || $selector != HttpRequest::$POST)
+        if ($selector != null || $selector != self::GET || $selector != self::POST || $selector != self::SERVER)
             return;
 
         $this->selector = $selector;
@@ -116,6 +150,39 @@ class HttpRequest
         }
 
         return $url;
+    }
+    
+    public function getUserAgent()
+    {
+        $browser = null;
+        
+        if(stristr($this->getValue('HTTP_USER_AGENT', self::SERVER),'Opera Mini'))
+        {
+            if($this->getValue('HTTP_X_OPERAMINI_PHONE_UA', self::SERVER))
+                $browser = addslashes(strip_tags($this->getValue('HTTP_X_OPERAMINI_PHONE_UA', self::SERVER)));
+            else
+                $browser = addslashes(strip_tags($this->getValue('HTTP_USER_AGENT', self::SERVER)));
+        }
+        else
+            $browser = addslashes(strip_tags($this->getValue('HTTP_USER_AGENT', self::SERVER)));
+        
+        return $browser;
+    }
+    
+    public function getUserIP()
+    {
+        $ip = null;
+        
+        if($this->getValue('HTTP_CLIENT_IP', self::SERVER))
+            $ip = $this->getValue('HTTP_CLIENT_IP', self::SERVER);
+        elseif($this->getValue('HTTP_FORWARDED_FOR', self::SERVER))
+            $ip = $this->getValue('HTTP_FORWARDED_FOR', self::SERVER);
+        elseif($this->getValue('HTTP_X_FORWARDED_FOR', self::SERVER))
+            $ip = $this->getValue('HTTP_X_FORWARDED_FOR', self::SERVER);
+        else   
+            $ip = $this->getValue('REMOTE_ADDR', self::SERVER);
+        
+        return $ip;        
     }
 
 }
