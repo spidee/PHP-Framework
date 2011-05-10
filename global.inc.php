@@ -3,6 +3,7 @@
 require_once("config/config_global.php");
 
 date_default_timezone_set(DEFAULT_TIMEZONE);
+setlocale(LC_CTYPE, DEFAULT_LOCALE);
 
 $ROOT = realpath(dirname(__FILE__));
 set_include_path(get_include_path().

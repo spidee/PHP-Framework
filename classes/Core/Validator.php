@@ -4,7 +4,7 @@
 *   Version: 0.1
 *   Last update: 28.4.2011
 * 
-*   TODO: 
+*   TODO: add more rules
 */
 
 class Validator
@@ -61,26 +61,25 @@ class Validator
                 
                 if ($validationRule->mode & self::EMAIL)
                     $valid &= $this->isValidEmail($this->getValidateDataValue($dataKey), $validationRule->miscValue);
-                        
+
                 if ($validationRule->mode & self::MUST_BE_STRING)
                     $valid &= $this->isString($this->getValidateDataValue($dataKey), $validationRule->miscValue);
-                        
+                    
                 if ($validationRule->mode & self::MUST_BE_NUMERIC)
                     $valid &= $this->isNumeric($this->getValidateDataValue($dataKey), $validationRule->miscValue);
-                        
+
                 if ($validationRule->mode & self::MIN_STRING_LENGTH)
-                    $valid &= ($validationRule->miscValue && strlen($this->getValidateDataValue($dataKey)) >= (int)$validationRule->miscValue);
-                        
+                    $valid &= ($validationRule->miscValue && mb_strlen($this->getValidateDataValue($dataKey), "utf-8") >= (int)$validationRule->miscValue);
+
                 if ($validationRule->mode & self::MAX_STRING_LENGTH)
-                    $valid &= ($validationRule->miscValue && strlen($this->getValidateDataValue($dataKey)) <= (int)$validationRule->miscValue);
-                        
+                    $valid &= ($validationRule->miscValue && mb_strlen($this->getValidateDataValue($dataKey), "utf-8") <= (int)$validationRule->miscValue);
+                
                 if ($validationRule->mode & self::EXACT_STRING_LENGTH)
-                    $valid &= ($validationRule->miscValue && strlen($this->getValidateDataValue($dataKey)) == (int)$validationRule->miscValue);
-                        
+                    $valid &= ($validationRule->miscValue && mb_strlen($this->getValidateDataValue($dataKey), "utf-8") == (int)$validationRule->miscValue);
+
                 if ($validationRule->mode & self::REGULAR_EXPRESSION)
                     $valid &= $this->regularExpressionValidation($this->getValidateDataValue($dataKey), $validationRule->miscValue);
-                    
-                 
+                                             
                 if (!$valid)
                     $this->setError($validationRule);
                         
@@ -137,7 +136,14 @@ class Validator
     public static function isString($data, $miscValue = "")
     {    
         if ($data)
-            return preg_match("/^[a-zA-Z]+$/", $data);
+        {
+            $data = iconv('utf-8', 'ascii//IGNORE', $data);
+            
+            if (!$data)
+                return true;
+            
+            return preg_match("/^[[:alpha:]]+$/", $data);
+        }
         
         return false;        
     }

@@ -2,7 +2,10 @@
 /*
 *   Author: Jan Krizak (krizak@gmail.com)
 *   Version: 0.7
-*   Last update: 14.9.2009
+*   Last update: 29.9.2011
+* 
+*   TODO: separate class for DB row and table - this should be DB row, in property "table" should be some class
+*         for table with methods such as search(), getDBRowCount() and so on
 */
 
 class BaseClass implements ArrayAccess
@@ -148,14 +151,14 @@ class BaseClass implements ArrayAccess
       return $this->{$this->id_column};
   }
   
-  function update_column($column_name, $value)
+  function updateDBcolumn($column_name, $value)
   {
-      $this->update(array($column_name => $value), "{$this->id_column} = {$this->id}");
+      $this->getAdapter()->update(array($column_name => $value), $this, "{$this->id_column} = {$this->id}");
   }
   
-  function update_columns(array $data)
+  function updateDBcolumns(array $data)
   {
-      $this->update($data, "{$this->id_column} = {$this->id}");
+      $this->getAdapter()->update($data, $this, "{$this->id_column} = {$this->id}");
   }  
 
   function destroy()
@@ -191,6 +194,18 @@ class BaseClass implements ArrayAccess
   public function getIdColumn()
   {
       return $this->id_column;
+  }
+  
+  function getDBRowCount($where = null)
+  {
+      $s = $this->getAdapter()->select(array("count(*) as total"));
+      $s = $s->from($this->getTableName());
+
+      if ($where)
+          $s = $s->where($where);
+
+      $count = $this->getAdapter()->fetchSingle($s);
+      return (int)$count->total;
   }
  
 }

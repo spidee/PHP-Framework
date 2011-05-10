@@ -53,6 +53,7 @@ define ("SEO", true);
 define ("DEBUG", $_debug);
 define ("LOCALHOST", $_localhost);
 define ("DEFAULT_TIMEZONE", "Europe/Prague");
+define ("DEFAULT_LOCALE", "cs_CZ.utf8");
 define ("DEFAULT_PAGE_ID", 1);
 define ("ERROR_PAGE_ID", 2);
 define ("FORBIDDEN_PAGE_ID", ERROR_PAGE_ID);
