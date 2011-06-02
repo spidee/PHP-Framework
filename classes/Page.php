@@ -55,6 +55,12 @@ class Page extends BaseClass {
       return $return;
     }
     
+    public function getUrl($fresh = false)
+    {
+        $seo = new Seo();
+        return $seo->getUrl($this);
+    }
+    
     public function getParentPages(array &$output)
     {
         $return = array();
@@ -172,6 +178,14 @@ class Page extends BaseClass {
             return null;            
         }
         return null;
+    }
+    
+    public function checkPageContentAndGetChild()
+    {
+        if (!$this->phpExe && !$this->tplInclude && $childPage = $this->getChildPage())
+            return $childPage;
+        
+        return $this;
     }
 }
 

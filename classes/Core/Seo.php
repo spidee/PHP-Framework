@@ -38,9 +38,9 @@ class Seo {
 
     public function getUrl($module, $subpage = null, $page_num = null)
     {
-      $ret = URL;
-       
-      $page = new Page("internalPointer = '{$module}'");
+      $ret = "";
+   
+      $page = ($module instanceOf Page) ? $module : new Page("internalPointer = '{$module}'");
       
       if ($page && $page->isValid() && $page->seoLink)
       {
@@ -76,10 +76,13 @@ class Seo {
       $pieces = explode(SEO_PARSE_PAGING, $url);
       
       if (count($pieces) == 2)
-          return $pieces[0] . SEO_PARSE_PAGING . $page . URL_SUFFIX;
+      {
+          $pieces[1] = preg_replace("/^[0-9]?/", "", $pieces[1]);
+          return $pieces[0] . SEO_PARSE_PAGING . $page . $pieces[1];
+      }
+          
                 
-      $url = str_replace(URL_SUFFIX, "", $url);
-      $url .= SEO_PARSE_PAGING . $page . URL_SUFFIX;
+      $url = str_replace(URL_SUFFIX, SEO_PARSE_PAGING . $page . URL_SUFFIX, $url);
       return $url;
     }
 

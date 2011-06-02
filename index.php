@@ -8,6 +8,9 @@ $action =  $HTTP_REQUEST->action ? $HTTP_REQUEST->action : null;
 
 $page = new Page();
 $page = $action ? $page->getPageByLinkWithSubpages($action) : new Page(DEFAULT_PAGE_ID);
+     
+if ($page)
+    $page = $page->checkPageContentAndGetChild();
 
 if (!$page || !$page->isValid())
 {
@@ -21,6 +24,7 @@ else if (!$page->isActive())
 }
 else
     header(HTTP_HEADER_200_OK);
+
 
     
 if ($page->phpExe)

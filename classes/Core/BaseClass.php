@@ -163,7 +163,7 @@ class BaseClass implements ArrayAccess
 
   function destroy()
   {
-      return $this->delete("{$this->id_column} = {$this->id}");
+      return $this->getAdapter()->delete("{$this->id_column} = {$this->id}", $this);
   }
   
   public static function setDefaultAdapter(DataBase $db)

@@ -181,7 +181,7 @@ class DataBase
         $qb->where($where);
 
         return new DBRowSet($this->_query($qb));
-    }
+    } 
     
     private function excludeNotExistedColumns(QueryBuilder $qb, array &$columnsValues)
     {
@@ -208,6 +208,16 @@ class DataBase
         $qb->from($obj->getTableName());
         $qb->where($obj->getIdColumn() . "=" .$id);
         
+        return new DBRowSet($this->_query($qb));
+    }
+    
+    public function delete($where, BaseClass $obj)
+    {
+        $qb = new QueryBuilder();
+        $qb->delete();
+        $qb->table($obj->getTableName());                        
+        $qb->where($where);
+
         return new DBRowSet($this->_query($qb));
     }
     

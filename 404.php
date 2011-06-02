@@ -13,6 +13,22 @@ define ("FROM_404", true);
 $srv = substr(URL, 0, strlen(URL)-1);//"http://".$_SERVER['SERVER_NAME'];
 
 $url = $srv.$_SERVER["REQUEST_URI"];
+
+$matches_query = array();
+if (preg_match("/\?.+/", $url, $matches_query))
+{
+    $_tmp = str_replace("?", "", $matches_query[0]);
+    $_tmp = explode("&", $_tmp);
+    foreach($_tmp as $key=>$value)
+    {
+        $__tmp = explode("=", $value);
+        if (isset($__tmp[0]) && isset($__tmp[1]))
+            $_GET[$__tmp[0]] = $__tmp[1];
+    }
+    
+    $url = str_replace($matches_query[0], "", $url);
+}
+
 $url = str_replace($srv."/","",$url);
 $url_parse = explode("/",$url);
 
@@ -32,21 +48,7 @@ for ($i = (count($url_parse) - 1); $i >= 0; --$i)
     
     $idFound = false;
 
-    $matches_query = array();
-    if (preg_match("/\?.+/", $action, $matches_query))
-    {
-        $_tmp = str_replace("?", "", $matches_query[0]);
-        $_tmp = explode("&", $_tmp);
-        foreach($_tmp as $key=>$value)
-        {
-            $__tmp = explode("=", $value);
-            if (isset($__tmp[0]) && isset($__tmp[1]))
-                $_GET[$__tmp[0]] = $__tmp[1];
-        }
-        
-        $action = str_replace($matches_query[0], "", $action);
-    }
-    
+
     $tmp_paging = explode(SEO_PARSE_PAGING,$action); 
 
     if (count($tmp_paging) > 1 ) 
@@ -85,15 +87,11 @@ if (URL_SUFFIX_STRICT_REQURED)
     if (substr($__str, strlen($__str) - strlen(URL_SUFFIX)) != URL_SUFFIX)
         $__action = "dfk23Fds475";
 }
-
+   
 $_GET[GET_ACTION_LINK] = $__action;
 $_GET[GET_PAGING_LINK] = $page;
 if (isset($id))
     $_GET[GET_ID_LINK] = $id; 
-
-//print_r($_GET);
-//die();
-
 
 require_once("index.php");
 

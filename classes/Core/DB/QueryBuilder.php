@@ -37,7 +37,7 @@ class QueryBuilder
         $this->updateSQL    = "[UPDATE {table}] [SET {updateColumns}] [WHERE {where}] [LIMIT {limit}]";
         $this->selectSQL    = "[SELECT {columns}] [FROM {from}] [LEFT JOIN {leftJoinTable} ON {leftJoin}] [WHERE {where}] [GROUP BY {groupBy}] [ORDER BY {order}] [LIMIT {limit}]";
         $this->describeSQL  = "[DESCRIBE {table}]";
-        $this->deleteSQL    = "[DELETE FROM {talbe}] [WHERE {where}] [LIMIT {limit}]";
+        $this->deleteSQL    = "[DELETE FROM {table}] [WHERE {where}] [LIMIT {limit}]";
         
     }
     
@@ -70,6 +70,16 @@ class QueryBuilder
             
         $this->mode = QueryBuilder::UPDATE;
         $this->queryString = $this->updateSQL;
+        return $this;
+    }
+    
+    function delete($table = null)
+    {
+        if ($table)
+            $this->table = $table;
+            
+        $this->mode = QueryBuilder::DELETE;
+        $this->queryString = $this->deleteSQL;
         return $this;
     }
     

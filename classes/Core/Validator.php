@@ -57,7 +57,7 @@ class Validator
                 $valid = true;
                 
                 if ($validationRule->mode & self::NOT_EMPTY_OR_NULL)
-                    $valid &= $this->getValidateDataValue($dataKey);
+                    $valid &= $this->getValidateDataValue($dataKey) != null;
                 
                 if ($validationRule->mode & self::EMAIL)
                     $valid &= $this->isValidEmail($this->getValidateDataValue($dataKey), $validationRule->miscValue);
