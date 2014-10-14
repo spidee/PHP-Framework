@@ -56,8 +56,8 @@ class DataBase
             throw new CustomException("V nastaveni DB chybi polozka 'password'");        
         
         if (!$this->isConnected())
-            $this->connection = mysql_connect($this->dbSettings["host"], $this->dbSettings["username"], $this->dbSettings["password"]);
-            
+            $this->connection = mysqli_connect($this->dbSettings["host"], $this->dbSettings["username"], $this->dbSettings["password"]);
+        
         if (!$this->isConnected())
             throw new CustomException("Nelze se pripojit do DB!");
     }
@@ -67,40 +67,75 @@ class DataBase
         if (!array_key_exists("dbname", $this->dbSettings))
             throw new CustomException("V nastaveni DB chybi polozka 'dbname'");
         
-        mysql_select_db($this->dbSettings["dbname"], $this->connection);
+        $this->connection->select_db($this->dbSettings["dbname"]);
     }
     
     public function fetchAll(QueryBuilder $query)
     {
-        return new DBRowSet($this->_query($query));
+        return $this->cacheStore($query, true);
+    }
+    
+    public function sanitizeInput($input)
+    {
+        return $this->connection->real_escape_string($input);
     }
     
     public function fetchSingle(QueryBuilder $query)
     {
-        return new DBRow($this->_query($query));
+        return $this->cacheStore($query, false);
     }
     
     public function query(QueryBuilder $query)
     {
-        return new DBRow($this->_query($query));
+        return $this->fetchSingle($query);
+    }
+    
+    public function cacheStore(QueryBuilder $query, $fetchAll)
+    {
+		$cache = new Cache(CACHE_SQL_QUERY);
+		$userCache = $cache->GetUserCache();
+		
+		if ($userCache)
+			$userCache->SetTimeToLive(CACHE_SQL_QUERY_TIME_TO_LIVE);
+
+	    if ($userCache && $SQLStore = $userCache->SQL)
+	    {
+			if (isset($SQLStore[sha1((string)$query)]))
+				return $SQLStore[sha1((string)$query)];
+	    }
+	    
+	    $result = $fetchAll ? new DBRowSet($this->_query($query)) : new DBRow($this->_query($query));
+	    
+	    if ($userCache && $query->getMode() == QueryBuilder::SELECT)
+        {
+			$SQLStore = array();
+			if ($data = $userCache->SQL)
+				$SQLStore = $data;
+			
+			$SQLStore[sha1((string)$query)] = $result;
+							
+			$userCache->SQL = $SQLStore;
+        }
+        
+        return $result; 
     }
     
     public function queryRawSql($query)
     {   
         $query = new QueryBuilder($query);
-        return new DBRowSet($this->_query($query));
+        return $this->fetchAll($query);
     }
     
     private function _query(QueryBuilder $query)
     {
-        $res = mysql_query($query, $this->connection);
+        $res = $this->connection->query($query);
         
-        if (mysql_errno($this->connection))
-            throw new CustomException("SQL: " . mysql_error($this->connection) . "<br/>" . PHP_EOL . $query, E_ERROR);
+        if (mysqli_errno($this->connection))
+            throw new CustomException("SQL: " . mysqli_error($this->connection) . "<br/>" . PHP_EOL . $query, E_ERROR);
             
         $this->lastQuery = $query;
         $this->getDebugInfo();
-        
+                
         return $res;
     }
     
@@ -149,7 +184,7 @@ class DataBase
         
     public function isConnected()
     {
-        return $this->connection && is_resource($this->connection);
+        return $this->connection && !$this->connection->connect_error;
     }
     
     public function select(array $columns = array("*"))
@@ -167,7 +202,7 @@ class DataBase
         
         $qb->insert($columnsValues);
         
-        return new DBRowSet($this->_query($qb));
+        return $this->fetchAll($qb);
     }
     
     public function update(array $columnsValues, BaseClass $obj, $where = null)
@@ -180,7 +215,7 @@ class DataBase
         $qb->update($columnsValues);
         $qb->where($where);
 
-        return new DBRowSet($this->_query($qb));
+        return $this->fetchAll($qb);
     } 
     
     private function excludeNotExistedColumns(QueryBuilder $qb, array &$columnsValues)
@@ -193,7 +228,8 @@ class DataBase
             $unsetThis = true;
             foreach ($d as $columnDB)
             {
-                if ($columnDB->Field == $column && !ereg("auto_increment", $columnDB->Extra))
+//                 if ($columnDB->Field == $column && !ereg("auto_increment", $columnDB->Extra))
+                if ($columnDB->Field == $column && !preg_match("/auto_increment/", $columnDB->Extra))
                     $unsetThis = false;
             }
             
@@ -208,7 +244,7 @@ class DataBase
         $qb->from($obj->getTableName());
         $qb->where($obj->getIdColumn() . "=" .$id);
         
-        return new DBRowSet($this->_query($qb));
+        return $this->fetchAll($qb);;
     }
     
     public function delete($where, BaseClass $obj)
@@ -218,12 +254,16 @@ class DataBase
         $qb->table($obj->getTableName());                        
         $qb->where($where);
 
-        return new DBRowSet($this->_query($qb));
+        return $this->fetchAll($qb);
     }
     
     public function lastInsertId()
     {
-        return mysql_insert_id($this->connection);
+        //dump(mysqli_insert_id($this->connection));
+        //dump($this->connection);
+        $lid = $this->queryRawSql("SELECT LAST_INSERT_ID() as LID");
+        return $lid->last()->LID;
+//         return mysqli_insert_id($this->connection);
     }
     
 }

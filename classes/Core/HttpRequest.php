@@ -22,17 +22,17 @@ class HttpRequest
     function __construct(array $GETdata = null, array $POSTdata = null, array $SERVERdata = null)
     {
         if ($GETdata && count($GETdata))
-          $this->GETdata = $GETdata;
+          $this->GETdata = fixXSS($GETdata);
         else 
           $this->fillDataFromGET();
           
         if ($POSTdata && count($POSTdata))
-          $this->POSTdata = $POSTdata;
+          $this->POSTdata = fixXSS($POSTdata);
         else 
           $this->fillDataFromPOST();
           
         if ($SERVERdata && count($SERVERdata))
-          $this->SERVERdata = $SERVERdata;
+          $this->SERVERdata = fixXSS($SERVERdata);
         else 
           $this->fillDataFromSERVER();
     }
@@ -44,12 +44,32 @@ class HttpRequest
 
     function __set($name, $value)
     {
+		$value = fixXSS($value);
         $this->setValue($name, $value);
     }
 
     function getValue($name, $selector = null)
     {
         $value = null;
+
+        switch($name)
+        {
+            case "GET":
+                    $obj = clone $this;
+                    $obj->setSelector(self::GET);
+                    return $obj;
+                break;
+            case "POST":
+                    $obj = clone $this;
+                    $obj->setSelector(self::POST);
+                    return $obj;
+                break;
+            case "SERVER":
+                    $obj = clone $this;
+                    $obj->setSelector(self::SERVER);
+                    return $obj;
+                break;
+        }
 
         $selector  = $selector ? $selector : $this->selector;
 
@@ -84,17 +104,17 @@ class HttpRequest
 
     private function fillDataFromGET()
     {
-        $this->GETdata = $_GET;
+        $this->GETdata = fixXSS($_GET);
     }
 
     private function fillDataFromPOST()
     {
-        $this->POSTdata = $_POST;
+        $this->POSTdata = fixXSS($_POST);
     }
     
     private function fillDataFromSERVER()
     {
-        $this->SERVERdata = $_SERVER;
+        $this->SERVERdata = fixXSS($_SERVER);
     }
     
     public function getGETdata()
@@ -114,10 +134,15 @@ class HttpRequest
 
     public function setSelector($selector)
     {
-        if ($selector != null || $selector != self::GET || $selector != self::POST || $selector != self::SERVER)
+        if ($selector != null && $selector != self::GET && $selector != self::POST && $selector != self::SERVER)
             return;
 
         $this->selector = $selector;
+    }
+    
+    public function getSelector()
+    {
+        return $this->selector;
     }
 
     public static function generateUrl($host, array $params)

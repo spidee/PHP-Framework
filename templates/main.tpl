@@ -1,14 +1,13 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="cs" lang="cs">
 <head>
-
-    {if $PAGE->htmlMetaDescription neq ''}
-        <meta name="description" content="{$PAGE->htmlMetaDescription}" />
+    {if $PAGE->content->htmlMetaDescription neq ''}
+        <meta name="description" content="{$PAGE->content->htmlMetaDescription}" />
     {else}
         <meta name="description" content="{$smarty.const.SERVER_TITLE}" />
     {/if}
-    {if $PAGE->htmlMetaKeywords neq ''}
-        <meta name="keywords" content="{$PAGE->htmlMetaKeywords}" />
+    {if $PAGE->content->htmlMetaKeywords neq ''}
+        <meta name="keywords" content="{$PAGE->content->htmlMetaKeywords}" />
     {else}
         <meta name="keywords" content="{$smarty.const.SERVER_TITLE}" />
     {/if}
@@ -24,10 +23,10 @@
     <meta name="cache-control" content="no-cache" />
     <meta name="resource-type" content="document" />
 
-    {if $PAGE->htmlTitle neq ''} 
-        <title>{$PAGE->htmlTitle} | {$smarty.const.SERVER_TITLE}</title>
+    {if $PAGE->content->htmlTitle neq ''}
+        <title>{$PAGE->content->htmlTitle} | {$smarty.const.SERVER_TITLE}</title>
     {else}
-        <title>{$PAGE->title} | {$smarty.const.SERVER_TITLE}</title>
+        <title>{$PAGE->content->title} | {$smarty.const.SERVER_TITLE}</title>
     {/if}
 
     <meta name="copyright" content="" /> 
@@ -43,9 +42,15 @@
     <script type="text/javascript" src="/js/scripts.js"></script>
 
     {if $flash_message}
-        <script type="text/javascript" language="JavaScript">
+        <script type="text/javascript">
         <!--
-            alert('{$flash_message}');
+            {literal}
+            jQuery(document).ready(function()
+            { {/literal}
+                showInfoBox('{$flash_message}');
+                {literal}
+            });
+            {/literal}
         //-->
         </script>
     {/if}        
@@ -57,11 +62,11 @@
 
     <div id="InnerContent">
 
-        {assign var="page" value=$PAGE->tplInclude}     
+        {assign var="page" value=$PAGE->content->tplInclude}     
         {if $page}
             {include file="body/$page"} 
         {else}
-            {$PAGE->htmlContent}
+            {$PAGE->content->htmlContent}
         {/if}
 
     </div>

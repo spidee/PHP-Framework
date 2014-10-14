@@ -3,7 +3,7 @@
 *   Author: Jan Krizak (krizak@gmail.com)
 *   Version: 0.7
 *   Last update: 29.9.2011
-* 
+*
 *   TODO: separate class for DB row and table - this should be DB row, in property "table" should be some class
 *         for table with methods such as search(), getDBRowCount() and so on
 */
@@ -12,15 +12,16 @@ class BaseClass implements ArrayAccess
 {
 
   private $data;
+  private $encoded = false;
   public $id_column = "id";
-  
+
   public static $dbDefaultAdapter;
   private $dbAdapter;
 
   function __construct($in = NULL, DataBase $dbAdapter = NULL)
   {
     $this->dbAdapter = $dbAdapter ? $dbAdapter : self::$dbDefaultAdapter;
-    
+
     //TODO: HACK!! - doufejme, ze PHP zavede vlastnosti objektu v interface
     if (!isset($this->tableName) || empty($this->tableName))
         throw new CustomException("Trida '" . get_class($this) . "' nema nastavenou vlastnost 'tableName'");
@@ -29,7 +30,7 @@ class BaseClass implements ArrayAccess
     {
         foreach ($in as $key=>$value)
             $this->$key = $value;
-        
+
     }
     else if (is_numeric($in))
     {
@@ -50,27 +51,27 @@ class BaseClass implements ArrayAccess
   {
       unset($this->id);
   }
-  
+
   function search($array_where = NULL, $order = NULL, $offset = NULL, $count = NULL, $group_by = NULL)
   {
       $where = NULL;
-      
+
       if ($array_where && is_array($array_where))
       {
           if (count($array_where) == 1)
               $where = $array_where[0];
-          else 
+          else
               $where = implode(" AND ", $array_where);
       }
 
 
       $select   = $this->getAdapter()->select()->from($this->tableName);
-      
+
       if ($where)
           $select = $select->where($where);
 
       $select   = $select->order($order)->limit($count, $offset);
-      
+
       if ($group_by)
           $select = $select->group($group_by);
 
@@ -84,17 +85,17 @@ class BaseClass implements ArrayAccess
 
       return $array_ret;
   }
-  
+
   function __get($name)
   {
       return $this->offsetGet($name);
   }
-    
+
   function __set($name, $value)
   {
       return $this->offsetSet($name, $value);
   }
-  
+
   public function offsetSet($name, $data)
     {
         $this->data[$name] = $data;
@@ -104,98 +105,119 @@ class BaseClass implements ArrayAccess
     {
         return $this->data;
     }
-        
+
     public function offsetGet($name)
     {
         return $this->data && isset($this->data[$name]) ? $this->data[$name] : null;
     }
-    
+
     public function offsetExists($name)
     {
         return isset($this->data[$name]);
     }
-    
+
     public function offsetUnset($offset)
-    { 
+    {
         unset($this->data[$offset]);
     }
-    
+
     public function isEmpty()
     {
         return !is_array($this->data) || !count($this->data);
     }
-  
+    
+    public function encodeData()
+    {
+        foreach ($this->data as $key=>$value)
+        	$this->data[$key] = base64_encode($value);
+        	
+        $this->encoded = true;
+    }
+
+    public function decodeData()
+    {
+        if (!$this->encoded)
+        	return;
+        
+        $dec = array();
+        foreach ($this->data as $key=>$value)
+        	$dec[$key] = base64_decode($value);
+        	
+        $this->data = $dec;
+        $this->encoded = false;
+    }
+
   function save($overideId = false)
   {
       //$this->dt_updated = date("Y-m-d H:s:i");
       if ($overideId)
           $this->getAdapter()->insert($this->data, $this);
-      
+
       else if ($this->id)
           $this->getAdapter()->update($this->data, $this, "{$this->id_column} = {$this->id}");
-      
+
       else
       {
         $this->getAdapter()->insert($this->data, $this);
         $this->id = $this->getAdapter()->lastInsertId();
       }
   }
-  
+
   public function isValid()
   {
       return (bool)$this->getId();
   }
-  
+
   public function getId()
   {
       return $this->{$this->id_column};
   }
-  
+
   function updateDBcolumn($column_name, $value)
   {
       $this->getAdapter()->update(array($column_name => $value), $this, "{$this->id_column} = {$this->id}");
   }
-  
+
   function updateDBcolumns(array $data)
   {
       $this->getAdapter()->update($data, $this, "{$this->id_column} = {$this->id}");
-  }  
+  }
 
   function destroy()
   {
       return $this->getAdapter()->delete("{$this->id_column} = {$this->id}", $this);
   }
-  
+
   public static function setDefaultAdapter(DataBase $db)
   {
       self::$dbDefaultAdapter = $db;
   }
-  
+
   public static function getDefaultAdapter()
   {
        return self::$dbDefaultAdapter;
   }
-  
+
   public function getAdapter()
-  {      
+  {
       return $this->dbAdapter;
   }
-  
+
   public function setAdapter(DataBase $adapter)
   {
       $this->dbAdapter = $adapter;
   }
-  
+
   public function getTableName()
   {
       return $this->tableName;
   }
-  
+
   public function getIdColumn()
   {
       return $this->id_column;
   }
-  
+
   function getDBRowCount($where = null)
   {
       $s = $this->getAdapter()->select(array("count(*) as total"));
@@ -207,7 +229,7 @@ class BaseClass implements ArrayAccess
       $count = $this->getAdapter()->fetchSingle($s);
       return (int)$count->total;
   }
- 
+
 }
 
 ?>

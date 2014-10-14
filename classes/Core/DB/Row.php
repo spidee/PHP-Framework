@@ -14,8 +14,8 @@ class DBRow implements ArrayAccess, Iterator
     
     public function __construct($data) 
     {
-        if(is_resource($data))
-            $this->data = mysql_fetch_assoc($data);
+        if($data && ($data instanceOf mysqli_result))
+            $this->data = mysqli_fetch_assoc($data);
     }
     
     function __get($name)

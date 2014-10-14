@@ -5,6 +5,30 @@ class Page extends BaseClass {
     protected $tableName = TBL_PAGES;
     public $id_column = "id";
     public static $pagesInfo;
+    private $language;
+    
+    function __get($name)
+    {
+        if ($name == "content")
+            $this->fillLocalizedContent();
+        
+        return parent::__get($name);
+    }
+    
+    public function fillLocalizedContent()
+    {        
+        global $LANGUAGE;
+        
+        if (!isset($this->content) || ($this->content instanceOf PageContent) || !$this->content->isValid())
+            $this->content = current(PageContent::searchPageContentFor(null, $this->getId(), $this->language));
+        else
+            $this->content = new PageContent(); 
+    }
+    
+    public function setLanguage(Language $language)
+    {
+        $this->language = $language;
+    }
 
     public function isActive()
     {
@@ -152,13 +176,12 @@ class Page extends BaseClass {
                 if(!trim($item))
                     continue;
 
-                $subpage = new Page();
-                $res = $subpage->search(array("seoLink = '{$item}'"));
+                $res = PageContent::searchPageContentFor($item);
 
                 if (count($res))
                 {
                     if (count($res) == 1)
-                        return $res[0];
+                        return new Page($res[0]->pageId);
                     else
                     {
                         foreach ($res as $ress)
@@ -172,6 +195,13 @@ class Page extends BaseClass {
                         }
                     }
                 }
+                else
+                {
+                    $res = new Page("internalPointer = '{$item}' and phpExe is not null");
+
+                    if ($res->isValid())
+                        return $res;
+                }
                 
                 return null;
             }
@@ -182,7 +212,7 @@ class Page extends BaseClass {
     
     public function checkPageContentAndGetChild()
     {
-        if (!$this->phpExe && !$this->tplInclude && $childPage = $this->getChildPage())
+        if (!$this->phpExe && (!$this->content || !$this->content->tplInclude) && $childPage = $this->getChildPage())
             return $childPage;
         
         return $this;

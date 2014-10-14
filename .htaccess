@@ -1,0 +1,16 @@
+#
+# mod_rewrite
+# ===========
+#
+RewriteEngine on
+RewriteBase /
+
+# Disable rewriting for existing files or directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Redirect all other requests to index.php
+RewriteCond %{REQUEST_URI} ^(.*)$
+RewriteRule .* index.php?seoUrl=%1 [QSA]
+
+
+

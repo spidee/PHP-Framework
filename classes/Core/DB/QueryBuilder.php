@@ -41,6 +41,28 @@ class QueryBuilder
         
     }
     
+    function getMode()
+    {
+		if ($this->mode)
+			return $this->mode;
+			
+		$sql = $this->getSqlQuery();
+		if ($sql)
+		{
+			if (preg_match("/^SELECT/i", $sql))
+				$this->mode = QueryBuilder::SELECT;
+			if (preg_match("/^UPDATE/i", $sql))
+				$this->mode = QueryBuilder::UPDATE;
+			if (preg_match("/^INSERT/i", $sql))
+				$this->mode = QueryBuilder::INSERT;
+			if (preg_match("/^DELETE/i", $sql))
+				$this->mode = QueryBuilder::DELETE;
+				
+			if ($this->mode)
+				return $this->mode;
+		}
+    }
+    
     function select(array $columns = array("*"))
     {
         $this->columns = $columns;
@@ -126,6 +148,12 @@ class QueryBuilder
         return $this;
     }
     
+    function group($group)
+    {
+        $this->groupBy = $group;
+        return $this;
+    }
+    
     function limit($count, $offset)
     {
         if (is_numeric($count) && is_numeric($offset))
@@ -198,13 +226,15 @@ class QueryBuilder
                     }                    
                     $return = str_replace("[", "", $return); 
                     $return = str_replace("]", "", $return);                    
-                }                
+                }  
+                //dump($includeThisPart . " -- " . $return  . " -- " .$part );              
                 $toReplace = $includeThisPart ? $return : "";
                 $query = str_replace($part, $toReplace, $query);
+                //dump($query);
             }
         }
-         
-        $query = mb_ereg_replace('[ ]+',' ',trim($query));
+        
+        $query = trim($query);
         return $this->queryString = $query;
     }
     
