@@ -6,11 +6,6 @@ class Translation extends BaseClass
     
     protected $tableName = TBL_TRANSLATION;
 
-    function __construct($in = NULL)
-    {
-        parent::__construct($in);
-    }
-    
     public static function translate()
     {        
         global $LANGUAGE;

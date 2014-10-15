@@ -5,11 +5,6 @@ class Language extends BaseClass
     protected $tableName = TBL_LANGUAGE;
     
     public static $languages;
-
-    function __construct($in = NULL)
-    {
-        parent::__construct($in);
-    }
     
     public static function getDefaultLanguage()
     {        
@@ -28,9 +23,9 @@ class Language extends BaseClass
     {
         if (self::$languages)
             return self::$languages;
-        
+         
         $lang = new Language();
-        return self::$languages = $lang->search(array("enabled = '".DB_ENUM_TRUE."'"));
+        return self::$languages = $lang->search(array("enabled = ?" => DB_ENUM_TRUE));
     }
     
     public static function getActualLanguage(HttpRequest $HttpRequest)

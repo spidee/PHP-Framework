@@ -181,26 +181,44 @@ class QueryBuilder
                 if (count($ret))
                     $value = implode(", ", $ret);
                 break;
-                                                
+            case "where":
+            	if (is_array($value) && count($value))
+					$value = $this->prepareWhere($value);
+            break;
         }
         
         return $value;
     }
     
-    public static function prepareValues($value)
+    public function prepareWhere(array &$values, $__key = null)
     {
-        $value = addslashes($value);
-                                    
+        foreach ($values as $key => &$value)
+        {			
+			if (is_array($value))
+			{
+				$this->prepareWhere($value, $key);
+				$value = "(" . implode(" {$key} ", $value) . ")";
+			}
+			else
+				$value = "(" . str_replace("?", self::prepareValues($value), $key) . ")";
+        }
+        return $value;
+    }
+    
+    public static function prepareValues($value)
+    {        
         if (is_string($value))
-            $value = "'$value'";
-        
+        {
+            $value = addslashes($value);
+            $value = "'{$value}'";
+		}
         return $value;
     }
     
     private function prepareStatement($query)
     {
         $matches = array();
-
+        
         if (preg_match_all("/\[.*?\]/", $query, $matches))
         {
             foreach ($matches[0] as $part)
@@ -226,11 +244,10 @@ class QueryBuilder
                     }                    
                     $return = str_replace("[", "", $return); 
                     $return = str_replace("]", "", $return);                    
-                }  
-                //dump($includeThisPart . " -- " . $return  . " -- " .$part );              
+                }
+                
                 $toReplace = $includeThisPart ? $return : "";
                 $query = str_replace($part, $toReplace, $query);
-                //dump($query);
             }
         }
         

@@ -90,6 +90,7 @@ function clearToken()
 
 function dump($var, $withDie = false)
 {
+    
     echo "<pre>";
     var_dump($var);
     echo "</pre>";

@@ -23,7 +23,9 @@ class Seo {
 
     public function getRecursivelyParentPagesLink(BaseClass $page)
     {
-        $subpage = new Page($page->parent);
+        $subpage = new Page();
+        if ($page->parent)
+        	$subpage = $subpage->searchById($page->parent);
 
         $return = "";
 
@@ -39,15 +41,24 @@ class Seo {
     public function getUrl($module, $lang = null, $subpage = null, $page_num = null)
     {
         global $LANGUAGE;
+        
+        $languages = Language::getLanguages();
 
-        if (!$lang && $LANGUAGE->isValid())
+        if (!$lang && count($languages) > 1 && $LANGUAGE->isValid())
             $lang = $LANGUAGE->languagePrefix;
 
-        $page = ($module instanceOf Page) ? clone $module : new Page("internalPointer = '{$module}'");
-
+        if ($module instanceOf Page)
+        	$page = clone $module;
+        else
+        {
+			$_page = new Page();
+			$page = $_page->searchSingle(["internalPointer = ?" => $module]);
+        }
+                
         if ($lang)
         {
-            $_lang = new Language("languagePrefix = '{$lang}'");
+            $_lang = new Language();
+            $_lang = $_lang->searchSingle(["languagePrefix = ?" => $lang]);
             $page->setLanguage($_lang);
         }
 
@@ -56,8 +67,6 @@ class Seo {
         if ($page->httpsRequired == DB_ENUM_TRUE)
             $ret = "https://" . $_SERVER["HTTP_HOST"] . "/";
 
-//         $ret = str_replace("nestle-medical_ch/".$_lang."/", "", $ret);
-//        $ret .= "nestle-medical_ch/";
 
         $action = $page->content && $page->content->seoLink ? $page->content->seoLink : $page->internalPointer;
 
@@ -67,7 +76,7 @@ class Seo {
             {
                 if ($lang)
                     $ret .= "{$lang}/";
-
+                
                 $ret .= $this->getRecursivelyParentPagesLink($page);
                 $ret .= $action;
 
@@ -158,7 +167,7 @@ class Seo {
 
         foreach($languages as $language)
             if (array_push($lang, $language->languagePrefix));
-
+        
         $url = $HttpRequest->GET->seoUrl;
 
         $matches_query = array();

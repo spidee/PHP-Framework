@@ -90,6 +90,14 @@ class DataBase
         return $this->fetchSingle($query);
     }
     
+    public function queryRawSql($query)
+    {   
+        if (!is_object($query) || !($query instanceOf QueryBuilder))
+        	$query = new QueryBuilder($query);
+        	
+        return $this->fetchAll($query);
+    }
+    
     public function cacheStore(QueryBuilder $query, $fetchAll)
     {
 		$cache = new Cache(CACHE_SQL_QUERY);
@@ -118,12 +126,6 @@ class DataBase
         }
         
         return $result; 
-    }
-    
-    public function queryRawSql($query)
-    {   
-        $query = new QueryBuilder($query);
-        return $this->fetchAll($query);
     }
     
     private function _query(QueryBuilder $query)

@@ -49,10 +49,10 @@ class Page extends BaseClass {
     {
       $page = new Page();
 
-      $where = array();
-      array_push($where, "mainMenu = '" . DB_ENUM_TRUE . "'");
-      array_push($where, "deleted = '" . DB_ENUM_FALSE . "'");
-      array_push($where, "enabled = '" . DB_ENUM_TRUE . "'");
+      $where = ["AND" => []];
+      $where["AND"]["mainMenu = ?"] = DB_ENUM_TRUE;
+      $where["AND"]["deleted = ?"] = DB_ENUM_FALSE;
+      $where["AND"]["enabled = ?"] = DB_ENUM_TRUE;
 
       return $page->search($where, "menuOrder ASC");
     }
@@ -63,10 +63,9 @@ class Page extends BaseClass {
         return Page::$pagesInfo;
         
       $pages = new Page();
-
-      $where = array();
-      array_push($where, "deleted = '" . DB_ENUM_FALSE . "'");
-      array_push($where, "enabled = '" . DB_ENUM_TRUE . "'");
+      $where = ["AND" => []];
+      $where["AND"]["deleted = ?"] = DB_ENUM_FALSE;
+      $where["AND"]["enabled = ?"] = DB_ENUM_TRUE;
 
       $pages = $pages->search($where);
 
@@ -181,7 +180,10 @@ class Page extends BaseClass {
                 if (count($res))
                 {
                     if (count($res) == 1)
-                        return new Page($res[0]->pageId);
+                    {
+                        $_page = new Page();
+                        return $_page->searchById($res[0]->pageId);
+					}
                     else
                     {
                         foreach ($res as $ress)
@@ -197,7 +199,8 @@ class Page extends BaseClass {
                 }
                 else
                 {
-                    $res = new Page("internalPointer = '{$item}' and phpExe is not null");
+                    $_page = new Page();
+                    $res = $_page->searchSingle(["AND" => [ "internalPointer = ?'" => $item, "phpExe is not null" => null]]);
 
                     if ($res->isValid())
                         return $res;

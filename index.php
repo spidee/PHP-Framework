@@ -3,7 +3,7 @@
 $time1 = microtime(true);
 
 require_once('global.inc.php');
-
+ 
 SEO::parseUrl($HTTP_REQUEST);
 $LANGUAGE = Language::getActualLanguage($HTTP_REQUEST);
 
@@ -11,8 +11,8 @@ $action = $HTTP_REQUEST->GET->action ?
           $HTTP_REQUEST->GET->action : null;
 
 $page = new Page();
-$page = $action ? $page->getPageByLinkWithSubpages($action) :
-                  new Page(DEFAULT_PAGE_ID);
+
+$page = $action ? $page->getPageByLinkWithSubpages($action) : $page->searchById(DEFAULT_PAGE_ID);
 
 if ($page)
 {
@@ -25,12 +25,14 @@ if ($page)
 
 if (!$page || !$page->isValid() || (!$page->phpExe && !$page->content))
 {
-    $page = new Page(ERROR_PAGE_ID);
+    $page = new Page();
+    $page = $page->searchById(ERROR_PAGE_ID);
     header(HTTP_HEADER_404_NOT_FOUND);
 }
 else if (!$page->isActive())
 {
-    $page = new Page(FORBIDDEN_PAGE_ID);
+    $page = new Page();
+    $page = $page->searchById(FORBIDDEN_PAGE_ID);
     header(HTTP_HEADER_403_FORBIDDEN);
 }
 else
@@ -43,7 +45,7 @@ if ($page->internalPointer != "login" && $page->getId() != ERROR_PAGE_ID &&
 if ($page->phpExe)
 {
     if (file_exists(FOLDER_EXE_FILES.$page->phpExe))
-    {
+	{
         include (FOLDER_EXE_FILES.$page->phpExe);
         exit;
     }
